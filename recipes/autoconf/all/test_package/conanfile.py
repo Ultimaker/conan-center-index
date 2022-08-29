@@ -20,9 +20,6 @@ class TestPackageConan(ConanFile):
         if self.settings.get_safe("os") == "Windows" and is_msvc(self) and self.win_bash:
             self.tool_requires("msys2/cci.latest")
 
-    def requirements(self):
-        self.requires(self.tested_reference_str)
-
     def generate(self):
         self.output.info(f"tools.microsoft.bash:subsystem: {self.conf.get('tools.microsoft.bash:subsystem')}")
 
