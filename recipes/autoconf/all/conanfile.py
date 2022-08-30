@@ -1,10 +1,12 @@
 from pathlib import Path
 
 from conan import ConanFile
-from conan.tools.files import get, AutoPackager
+from conan.tools.files import get, AutoPackager, apply_conandata_patches
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 from conan.tools.gnu import Autotools
+
+from conans.client.subsystems import deduce_subsystem, subsystem_path
 
 required_conan_version = ">=1.50.0"
 
@@ -30,9 +32,6 @@ class AutoconfConan(ConanFile):
     def requirements(self):
         self.requires("m4/1.4.19")
 
-    def generate(self):
-        self.output.info(f"tools.microsoft.bash:subsystem: {self.conf.get('tools.microsoft.bash:subsystem')}")
-
     def layout(self):
         basic_layout(self, src_folder="source")
 
@@ -40,9 +39,13 @@ class AutoconfConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
+        apply_conandata_patches(self)
         autotool = Autotools(self)
         autotool.configure()
         autotool.make()
+        subsystem = deduce_subsystem(self, scope="build")
+        install_path = subsystem_path(subsystem, self.package_folder)
+        autotool.install(args=[f"DESTDIR={install_path}"])
 
     def package(self):
         packager = AutoPackager(self)
