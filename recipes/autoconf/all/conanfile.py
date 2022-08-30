@@ -26,6 +26,8 @@ class AutoconfConan(ConanFile):
 
     def build_requirements(self):
         # TODO: check if this is is a correct way to check if msys2 is needed
+        if hasattr(self, "settings_build"):
+            self.build_requires("m4/1.4.19")
         if self.settings.get_safe("os") == "Windows" and is_msvc(self) and self.win_bash:
             self.tool_requires("msys2/cci.latest")
 
