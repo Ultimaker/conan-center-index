@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from conan import ConanFile
-from conan.tools.files import get, AutoPackager, apply_conandata_patches
+from conan.tools.files import get, AutoPackager, apply_conandata_patches, rmdir
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 from conan.tools.gnu import Autotools
@@ -50,11 +50,13 @@ class AutoconfConan(ConanFile):
     def package(self):
         packager = AutoPackager(self)
         packager.run()
+        rmdir(self, Path(self.package_folder, "share", "info"))
+        rmdir(self, Path(self.package_folder, "share", "man"))
 
     def package_info(self):
         bin_path = Path(self.package_folder, "bin")
         self.output.info(f"Appending PATH env var with : {bin_path}")
-        self.buildenv_info.append_path("PATH", str(bin_path))
+        self.buildenv_info.prepend_path("PATH", str(bin_path))
 
         ac_macrodir = self._autoconf_datarootdir
         self.output.info(f"Setting AC_MACRODIR to {ac_macrodir}")
@@ -82,7 +84,7 @@ class AutoconfConan(ConanFile):
 
     @property
     def _datarootdir(self):
-        return Path(self.package_folder, "bin", "share")
+        return Path(self.package_folder, "share")
 
     @property
     def _autoconf_datarootdir(self):
