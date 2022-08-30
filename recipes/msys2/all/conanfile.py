@@ -173,14 +173,14 @@ class MSYS2Conan(ConanFile):
         msys_root = self._msys_dir
         msys_bin = os.path.join(msys_root, "usr", "bin")
 
-        self.output.info("Creating MSYS_ROOT env var : %s" % msys_root)
-        self.env_info.MSYS_ROOT = msys_root
+        self.output.info(f"Creating MSYS_ROOT env var: {msys_root}")
+        self.buildenv_info.define_path("MSYS_ROOT", msys_root)
 
-        self.output.info("Creating MSYS_BIN env var : %s" % msys_bin)
-        self.env_info.MSYS_BIN = msys_bin
+        self.output.info(f"Creating MSYS_BIN env var: {msys_bin}")
+        self.buildenv_info.define_path("MSYS_BIN", msys_bin)
 
-        self.output.info("Appending PATH env var with : " + msys_bin)
-        self.env_info.path.append(msys_bin)
-        
+        self.output.info(f"Appending PATH env var with: {msys_bin}")
+        self.buildenv_info.prepend_path("PATH", msys_bin)
+
         self.conf_info["tools.microsoft.bash:subsystem"] = "msys2"
         self.conf_info["tools.microsoft.bash:path"] = os.path.join(msys_bin, "bash.exe")
