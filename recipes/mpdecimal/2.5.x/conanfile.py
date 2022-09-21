@@ -6,7 +6,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv, VirtualBuildEnv
-from conan.tools.files import copy, get, chdir, apply_conandata_patches
+from conan.tools.files import copy, get, chdir, apply_conandata_patches, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
@@ -83,10 +83,9 @@ class MpdecimalConan(ConanFile):
         if not is_msvc(self):
             self.build_requires("automake/1.16.4")
 
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
+            destination=self.source_folder, strip_root=True)
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -178,8 +177,6 @@ class MpdecimalConan(ConanFile):
             self._build_msvc()
         else:
             autotools = Autotools(self)
-            # autotools.autoreconf()
-
             self.run("autoreconf -fiv", cwd=self.source_path, env="conanrun")
 
             libmpdec, libmpdecpp = self._target_names
@@ -206,20 +203,11 @@ class MpdecimalConan(ConanFile):
             copy(self, pattern="*.lib", src=distfolder, dst="lib")
             copy(self, pattern="*.dll", src=distfolder, dst="bin")
         else:
-            mpdecdir = os.path.join(self.source_folder, "libmpdec")
-            mpdecppdir = os.path.join(self.source_folder, "libmpdec++")
-            copy(self, pattern="mpdecimal.h", src=mpdecdir, dst="include")
-            if self.options.cxx:
-                copy(self, pattern="decimal.hh", src=mpdecppdir, dst="include")
-            builddirs = [mpdecdir]
-            if self.options.cxx:
-                builddirs.append(mpdecppdir)
-            for builddir in builddirs:
-                copy(self, pattern="*.a", src=builddir, dst="lib")
-                copy(self, pattern="*.so", src=builddir, dst="lib")
-                copy(self, pattern="*.so.*", src=builddir, dst="lib")
-                copy(self, pattern="*.dylib", src=builddir, dst="lib")
-                copy(self, pattern="*.dll", src=builddir, dst="bin")
+            autotools = Autotools(self)
+            with chdir(self, self.source_path):
+                autotools.install()
+            rmdir(self, self.package_path.joinpath("share"))
+
 
     def package_info(self):
         lib_pre_suf = ("", "")
