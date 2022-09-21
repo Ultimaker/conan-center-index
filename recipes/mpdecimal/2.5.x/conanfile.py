@@ -94,7 +94,7 @@ class MpdecimalConan(ConanFile):
         libmpdec_folder = os.path.join(self.build_folder, self.source_folder, "libmpdec")
         libmpdecpp_folder = os.path.join(self.build_folder, self.source_folder, "libmpdec++")
         vcbuild_folder = os.path.join(self.build_folder, self.source_folder, "vcbuild")
-        arch_ext = "{}".format(32 if self.settings.arch == "x86" else 64)
+        arch_ext = f"{32 if self.settings.arch == 'x86' else 64}"
         dist_folder = os.path.join(vcbuild_folder, f"dist{arch_ext}")
         os.mkdir(dist_folder)
 
@@ -117,7 +117,7 @@ class MpdecimalConan(ConanFile):
             builds.append([libmpdecpp_folder, mpdecpp_target, mpdecxx_extra_flags])
         with tools.vcvars(self):
             for build_dir, target, extra_flags in builds:
-                with chdir(build_dir):
+                with chdir(self, build_dir):
                     self.run("""nmake /nologo /f Makefile.vc {target} MACHINE={machine} DEBUG={debug} DLL={dll} CONAN_CFLAGS="{cflags}" CONAN_CXXFLAGS="{cxxflags}" CONAN_LDFLAGS="{ldflags}" """.format(
                         target=target,
                         machine={"x86": "ppro", "x86_64": "x64"}[str(self.settings.arch)],  # FIXME: else, use ansi32 and ansi64
@@ -136,7 +136,7 @@ class MpdecimalConan(ConanFile):
             else:
                 shutil.copy("libmpdec-{}.lib".format(self.version), os.path.join(dist_folder, "libmpdec-{}.lib".format(self.version)))
         if self.options.cxx:
-            with chdir(libmpdecpp_folder):
+            with chdir(self, libmpdecpp_folder):
                 shutil.copy("decimal.hh", dist_folder)
                 shutil.copy("libmpdec++-{}.lib".format(self.version), os.path.join(dist_folder, "libmpdec++-{}.lib".format(self.version)))
 
@@ -146,8 +146,6 @@ class MpdecimalConan(ConanFile):
             pass
         else:
             tc = AutotoolsToolchain(self)
-            yes_no = lambda v: "yes" if v else "no"
-
             tc.configure_args.extend([
                 "--enable-cxx" if self.options.cxx else "--disable-cxx"
             ])
@@ -232,10 +230,6 @@ class MpdecimalConan(ConanFile):
             if self.options.shared and Version(self.version) >= Version("2.5.1"):
                 self.cpp_info.components["libmpdecimal"].defines = ["MPDECIMALXX_DLL"]
 
-    def _configure_autotools(self):
-
-        return self._autotools
-
     @property
     def _shared_suffix(self):
         if is_apple_os(self.settings.os):
@@ -250,4 +244,3 @@ class MpdecimalConan(ConanFile):
         versionsuffix = ".{}".format(self.version) if self.options.shared else ""
         suffix = "{}{}".format(versionsuffix, libsuffix) if is_apple_os(self) or self.settings.os == "Windows" else "{}{}".format(libsuffix, versionsuffix)
         return "libmpdec{}".format(suffix), "libmpdec++{}".format(suffix)
-

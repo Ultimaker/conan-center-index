@@ -18,6 +18,6 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            self.run("{} 13 100".format(self.build_path.joinpath("test_package")), run_environment=True)
+            self.run(f"{self.build_path.joinpath('test_package')} 13 100", run_environment=True)
             if self.options["mpdecimal"].cxx:
-                self.run("{} 13 100".format(self.build_path.joinpath("test_package_cpp")), run_environment=True)
+                self.run(f"{self.build_path.joinpath('test_package_cpp')} 13 100", run_environment=True)
