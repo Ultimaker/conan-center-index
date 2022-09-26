@@ -598,6 +598,8 @@ class QtConan(ConanFile):
 
         cmake.definitions["QT_BUILD_TESTS"] = "OFF"
         cmake.definitions["QT_BUILD_EXAMPLES"] = "OFF"
+        
+        cmake.definitions["CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH"] = "FALSE"
 
         if self._is_msvc and "MT" in msvc_runtime_flag(self):
             cmake.definitions["FEATURE_static_runtime"] = "ON"
