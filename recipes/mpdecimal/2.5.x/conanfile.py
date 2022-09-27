@@ -100,50 +100,50 @@ class MpdecimalConan(ConanFile):
 
         shutil.copy(os.path.join(libmpdec_folder, "Makefile.vc"), os.path.join(libmpdec_folder, "Makefile"))
 
-        autotools = AutoToolsBuildEnvironment(self)
+        mpdec_target = f"libmpdec-{self.version}.{'dll' if self.options.shared else 'lib'}"
+        mpdecpp_target = f"libmpdec++-{self.version}.{'dll' if self.options.shared else 'lib'}"
 
-        mpdec_extra_flags = []
-        mpdecxx_extra_flags = []
-        if Version(self.version) >= "2.5.1":
-            if self.options.shared:
-                mpdec_extra_flags = ["-DMPDECIMAL_DLL"]
-                mpdecxx_extra_flags = ["-DLIBMPDECXX_DLL"]
-
-        mpdec_target = "libmpdec-{}.{}".format(self.version, "dll" if self.options.shared else "lib")
-        mpdecpp_target = "libmpdec++-{}.{}".format(self.version, "dll" if self.options.shared else "lib")
-
-        builds = [[libmpdec_folder, mpdec_target, mpdec_extra_flags] ]
+        builds = [[libmpdec_folder, mpdec_target]]
         if self.options.cxx:
-            builds.append([libmpdecpp_folder, mpdecpp_target, mpdecxx_extra_flags])
-        with tools.vcvars(self):
-            for build_dir, target, extra_flags in builds:
-                with chdir(self, build_dir):
-                    self.run("""nmake /nologo /f Makefile.vc {target} MACHINE={machine} DEBUG={debug} DLL={dll} CONAN_CFLAGS="{cflags}" CONAN_CXXFLAGS="{cxxflags}" CONAN_LDFLAGS="{ldflags}" """.format(
-                        target=target,
-                        machine={"x86": "ppro", "x86_64": "x64"}[str(self.settings.arch)],  # FIXME: else, use ansi32 and ansi64
-                        debug="1" if self.settings.build_type == "Debug" else "0",
-                        cflags=" ".join(autotools.flags + extra_flags),
-                        cxxflags=" ".join(autotools.cxx_flags + extra_flags),
-                        ldflags=" ".join(autotools.link_flags),
-                    ))
+            builds.append([libmpdecpp_folder, mpdecpp_target])
 
-        with chdir(libmpdec_folder):
+        for build_dir, target in builds:
+            with chdir(self, build_dir):
+                self.output.info(f"build_dir: {build_dir} %5 target: {target}")
+                self.run("""{nmake} /nologo /f Makefile.vc {target} MACHINE={machine} DEBUG={debug}""".format(
+                    nmake="nmake",
+                    target=target,
+                    machine={"x86": "ppro", "x86_64": "x64"}[str(self.settings.arch)],  # FIXME: else, use ansi32 and ansi64
+                    debug="1" if self.settings.build_type == "Debug" else "0",
+                ))
+
+        with chdir(self, libmpdec_folder):
             shutil.copy("mpdecimal.h", dist_folder)
             if self.options.shared:
-                shutil.copy("libmpdec-{}.dll".format(self.version), os.path.join(dist_folder, "libmpdec-{}.dll".format(self.version)))
-                shutil.copy("libmpdec-{}.dll.exp".format(self.version), os.path.join(dist_folder, "libmpdec-{}.exp".format(self.version)))
-                shutil.copy("libmpdec-{}.dll.lib".format(self.version), os.path.join(dist_folder, "libmpdec-{}.lib".format(self.version)))
+                shutil.copy(f"libmpdec-{self.version}.dll", os.path.join(dist_folder, f"libmpdec-{self.version}.dll"))
+                shutil.copy(f"libmpdec-{self.version}.dll.exp", os.path.join(dist_folder, f"libmpdec-{self.version}.exp"))
+                shutil.copy(f"libmpdec-{self.version}.dll.lib", os.path.join(dist_folder, f"libmpdec-{self.version}.lib"))
             else:
-                shutil.copy("libmpdec-{}.lib".format(self.version), os.path.join(dist_folder, "libmpdec-{}.lib".format(self.version)))
+                shutil.copy(f"libmpdec-{self.version}.lib", os.path.join(dist_folder, "libmpdec-{self.version}.lib"))
         if self.options.cxx:
             with chdir(self, libmpdecpp_folder):
                 shutil.copy("decimal.hh", dist_folder)
-                shutil.copy("libmpdec++-{}.lib".format(self.version), os.path.join(dist_folder, "libmpdec++-{}.lib".format(self.version)))
+                shutil.copy("libmpdec++-{}.lib".format(self.version), os.path.join(dist_folder, "libmpdec++-{self.version}.lib"))
 
     def generate(self):
         if is_msvc(self):
+            tc = AutotoolsToolchain(self)
 
-            pass
+            if Version(self.version) >= Version("2.5.1"):
+                if self.options.shared:
+                    tc.make_args.extend([
+                        "-DMPDECIMAL_DLL",
+                        "-DLIBMPDECXX_DLL"
+                    ])
+
+            env = tc.environment()
+            tc.generate()
+
         else:
             tc = AutotoolsToolchain(self)
             tc.configure_args.extend([
