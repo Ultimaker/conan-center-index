@@ -12,6 +12,7 @@ from conan.tools.build import cross_building, check_min_cppstd, build_jobs
 from conan.tools.files import get, replace_in_file, apply_conandata_patches, save, load, rm, rmdir
 from conan.tools.microsoft import msvc_runtime_flag
 from conan.tools.scm import Version
+from conan.tools.cmake import CMakeDeps
 from conans import RunEnvironment, CMake, tools
 from conan.errors import ConanInvalidConfiguration
 from conans.model import Generator
@@ -60,7 +61,7 @@ class QtConan(ConanFile):
                    "qtserialport", "qtwebsockets", "qtwebchannel", "qtwebengine", "qtwebview",
                    "qtremoteobjects", "qtpositioning", "qtlanguageserver"]
 
-    generators = "pkg_config", "cmake_find_package", "cmake"
+    generators = "pkg_config", "cmake"
     name = "qt"
     description = "Qt is a cross-platform framework for graphical user interfaces."
     topics = ("qt", "ui")
@@ -153,6 +154,10 @@ class QtConan(ConanFile):
     short_paths = True
 
     _submodules_tree = None
+
+    def generate(self):
+        tc = CMakeDeps(self)
+        tc.generate()
 
     @property
     def _is_msvc(self):
@@ -598,8 +603,6 @@ class QtConan(ConanFile):
 
         cmake.definitions["QT_BUILD_TESTS"] = "OFF"
         cmake.definitions["QT_BUILD_EXAMPLES"] = "OFF"
-        
-        cmake.definitions["CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH"] = "FALSE"
 
         if self._is_msvc and "MT" in msvc_runtime_flag(self):
             cmake.definitions["FEATURE_static_runtime"] = "ON"
