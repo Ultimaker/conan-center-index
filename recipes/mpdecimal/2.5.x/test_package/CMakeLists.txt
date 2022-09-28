@@ -8,6 +8,10 @@ if(CMAKE_VERSION VERSION_LESS "3.20.1" AND CMAKE_OSX_ARCHITECTURES STREQUAL "arm
     set(CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG "-Wl,-rpath,")
 endif()
 
+if(MSVC AND NOT BUILD_SHARED)
+	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
 # This is a non-official mpdecimal module!
 find_package(mpdecimal REQUIRED)
 
@@ -16,6 +20,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE mpdecimal::libmpdecimal)
 
 if(MPDECIMAL_CXX)
     add_executable(${PROJECT_NAME}_cpp test_package.cpp)
-    set_propertY(TARGET ${PROJECT_NAME}_cpp PROPERTY CXX_STANDARD 11)
+    set_property(TARGET ${PROJECT_NAME}_cpp PROPERTY CXX_STANDARD 11)
     target_link_libraries(${PROJECT_NAME}_cpp PRIVATE mpdecimal::libmpdecimal++)
 endif()

@@ -12,7 +12,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(variables={"MPDECIMAL_CXX": self.options["mpdecimal"].cxx})
+        cmake.configure(variables={"MPDECIMAL_CXX": self.options["mpdecimal"].cxx, "BUILD_SHARED": self.options["mpdecimal"].shared.upper()})
         cmake.build()
 
     def test(self):
