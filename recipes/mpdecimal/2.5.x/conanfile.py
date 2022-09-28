@@ -194,12 +194,12 @@ class MpdecimalConan(ConanFile):
         copy(self, pattern="LICENSE.txt", src=self.source_folder, dst="licenses")
         if is_msvc(self):
             distfolder = os.path.join(self.build_folder, self.source_folder, "vcbuild", f"dist{32 if self.settings.arch == 'x86' else 64}")
-            copy(self, pattern="vc*.h", src=os.path.join(self.build_folder, self.source_folder, "libmpdec"), dst="include")
-            copy(self, pattern="*.h", src=distfolder, dst="include")
+            copy(self, pattern="vc*.h", src=os.path.join(self.build_folder, self.source_folder, "libmpdec"), dst=os.path.join(self.package_path, "include"))
+            copy(self, pattern="*.h", src=distfolder, dst=os.path.join(self.package_path, "include"))
             if self.options.cxx:
-                copy(self, pattern="*.hh", src=distfolder, dst="include")
-            copy(self, pattern="*.lib", src=distfolder, dst="lib")
-            copy(self, pattern="*.dll", src=distfolder, dst="bin")
+                copy(self, pattern="*.hh", src=distfolder, dst=os.path.join(self.package_path, "include"))
+            copy(self, pattern="*.lib", src=distfolder, dst=os.path.join(self.package_path, "lib"))
+            copy(self, pattern="*.dll", src=distfolder, dst=os.path.join(self.package_path, "bin"))
         else:
             autotools = Autotools(self)
             with chdir(self, self.source_path):
