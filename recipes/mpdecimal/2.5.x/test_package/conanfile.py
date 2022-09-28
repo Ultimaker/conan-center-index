@@ -10,7 +10,6 @@ class TestPackageConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder=".")
 
-
     def build(self):
         cmake = CMake(self)
         cmake.configure(variables={"MPDECIMAL_CXX": self.options["mpdecimal"].cxx})

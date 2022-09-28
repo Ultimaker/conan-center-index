@@ -124,11 +124,11 @@ class MpdecimalConan(ConanFile):
                 shutil.copy(f"libmpdec-{self.version}.dll.exp", os.path.join(dist_folder, f"libmpdec-{self.version}.exp"))
                 shutil.copy(f"libmpdec-{self.version}.dll.lib", os.path.join(dist_folder, f"libmpdec-{self.version}.lib"))
             else:
-                shutil.copy(f"libmpdec-{self.version}.lib", os.path.join(dist_folder, "libmpdec-{self.version}.lib"))
+                shutil.copy(f"libmpdec-{self.version}.lib", os.path.join(dist_folder, f"libmpdec-{self.version}.lib"))
         if self.options.cxx:
             with chdir(self, libmpdecpp_folder):
                 shutil.copy("decimal.hh", dist_folder)
-                shutil.copy("libmpdec++-{}.lib".format(self.version), os.path.join(dist_folder, "libmpdec++-{self.version}.lib"))
+                shutil.copy(f"libmpdec++-{self.version}.lib", os.path.join(dist_folder, f"libmpdec++-{self.version}.lib"))
 
     def generate(self):
         if is_msvc(self):
