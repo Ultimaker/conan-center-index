@@ -13,8 +13,8 @@ from conan.tools.files import get, replace_in_file, apply_conandata_patches, sav
 from conan.tools.microsoft import msvc_runtime_flag
 from conan.tools.scm import Version
 from conan.tools.cmake import CMakeDeps
-from conans import RunEnvironment, CMake, tools
 from conan.errors import ConanInvalidConfiguration
+from conans import RunEnvironment, CMake, tools
 from conans.model import Generator
 
 required_conan_version = ">=1.51.3"

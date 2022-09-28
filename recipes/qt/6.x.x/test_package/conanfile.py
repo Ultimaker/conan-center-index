@@ -5,9 +5,9 @@ from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.files import mkdir, chdir
 from conan.tools.microsoft import is_msvc
+from conan.errors import ConanException
 
 from conans import tools, Meson, RunEnvironment, CMake
-from conan.errors import ConanException
 
 
 class TestPackageConan(ConanFile):
