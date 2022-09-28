@@ -98,8 +98,8 @@ class TestPackageConan(ConanFile):
             if self.settings.os == "Macos":
                 cmake.definitions['CMAKE_OSX_DEPLOYMENT_TARGET'] = '10.14'
 
-        cmake.configure()
-        cmake.build()
+            cmake.configure()
+            cmake.build()
 
     def build(self):
         self._build_with_qmake()
