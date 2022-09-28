@@ -29,7 +29,7 @@ class TestPackageConan(ConanFile):
             not self._is_mingw()
 
     def _qmake_supported(self):
-        return self.settings.compiler != "Visual Studio" or self.options["qt"].shared
+        return self.options["qt"].shared
 
     def _cmake_multi_supported(self):
         return True
@@ -98,8 +98,8 @@ class TestPackageConan(ConanFile):
             if self.settings.os == "Macos":
                 cmake.definitions['CMAKE_OSX_DEPLOYMENT_TARGET'] = '10.14'
 
-            cmake.configure()
-            cmake.build()
+        cmake.configure()
+        cmake.build()
 
     def build(self):
         self._build_with_qmake()
