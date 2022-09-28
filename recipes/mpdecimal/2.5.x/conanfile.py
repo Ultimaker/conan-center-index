@@ -193,7 +193,7 @@ class MpdecimalConan(ConanFile):
     def package(self):
         copy(self, pattern="LICENSE.txt", src=self.source_folder, dst="licenses")
         if is_msvc(self):
-            distfolder = os.path.join(self.build_folder, self.source_folder, "vcbuild", "dist{}".format(32 if self.settings.arch == "x86" else 64))
+            distfolder = os.path.join(self.build_folder, self.source_folder, "vcbuild", f"dist{32 if self.settings.arch == 'x86' else 64}")
             copy(self, pattern="vc*.h", src=os.path.join(self.build_folder, self.source_folder, "libmpdec"), dst="include")
             copy(self, pattern="*.h", src=distfolder, dst="include")
             if self.options.cxx:
@@ -210,7 +210,7 @@ class MpdecimalConan(ConanFile):
     def package_info(self):
         lib_pre_suf = ("", "")
         if is_msvc(self):
-            lib_pre_suf = ("lib", "-{}".format(self.version))
+            lib_pre_suf = ("lib", f"-{self.version}")
         elif self.settings.os == "Windows" and self.options.shared:
             lib_pre_suf = ("", ".dll")
 
@@ -241,6 +241,6 @@ class MpdecimalConan(ConanFile):
     @property
     def _target_names(self):
         libsuffix = self._shared_suffix if self.options.shared else ".a"
-        versionsuffix = ".{}".format(self.version) if self.options.shared else ""
-        suffix = "{}{}".format(versionsuffix, libsuffix) if is_apple_os(self) or self.settings.os == "Windows" else "{}{}".format(libsuffix, versionsuffix)
-        return "libmpdec{}".format(suffix), "libmpdec++{}".format(suffix)
+        versionsuffix = f".{self.version}" if self.options.shared else ""
+        suffix = f"{versionsuffix}{libsuffix}" if is_apple_os(self) or self.settings.os == "Windows" else f"{libsuffix}{versionsuffix}"
+        return f"libmpdec{suffix}", f"libmpdec++{suffix}"
