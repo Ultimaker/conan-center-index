@@ -2,11 +2,11 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, get, replace_in_file, rmdir
+from conan.tools.files import export_conandata_patches, apply_conandata_patches, collect_libs, copy, get, replace_in_file, rmdir
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.51.3"
+required_conan_version = ">=1.53.0"
 
 
 class FlatbuffersConan(ConanFile):
@@ -14,7 +14,7 @@ class FlatbuffersConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://google.github.io/flatbuffers"
-    topics = ("flatbuffers", "serialization", "rpc", "json-parser")
+    topics = ("serialization", "rpc", "json-parser")
     description = "Memory Efficient Serialization Library"
 
     settings = "os", "arch", "compiler", "build_type"
@@ -36,16 +36,30 @@ class FlatbuffersConan(ConanFile):
 
     def export_sources(self):
         copy(self, os.path.join("cmake", "FlatcTargets.cmake"), self.recipe_folder, self.export_sources_folder)
-        for p in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, p["patch_file"], self.recipe_folder, self.export_sources_folder)
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
+    def _cmake_new_enough(self, required_version):
+        try:
+            import re
+            from io import StringIO
+            output = StringIO()
+            self.run("cmake --version", output=output)
+            m = re.search(r'cmake version (\d+\.\d+\.\d+)', output.getvalue())
+            return Version(m.group(1)) >= required_version
+        except:
+            return False
+
+    def build_requirements(self):
+        if Version(self.version) >= "2.0.7" and not self._cmake_new_enough("3.16"):
+            self.tool_requires("cmake/3.25.1")
+
     def configure(self):
         if self.options.shared or self.options.header_only:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         if self.options.header_only:
             del self.options.shared
 
@@ -77,9 +91,10 @@ class FlatbuffersConan(ConanFile):
         tc.variables["FLATBUFFERS_LIBCXX_WITH_CLANG"] = False
         # Mimic upstream CMake/Version.cmake removed in _patch_sources()
         version = Version(self.version)
-        tc.variables["VERSION_MAJOR"] = version.major
-        tc.variables["VERSION_MINOR"] = version.minor
-        tc.variables["VERSION_PATCH"] = version.patch
+        tc.cache_variables["VERSION_MAJOR"] = str(version.major)
+        tc.cache_variables["VERSION_MINOR"] = str(version.minor or "0")
+        tc.cache_variables["VERSION_PATCH"] = str(version.patch or "0")
+        tc.cache_variables["VERSION_COMMIT"] = str(version.pre or "0")
         # For msvc shared
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         # Relocatable shared libs on Macos
@@ -131,8 +146,8 @@ class FlatbuffersConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")
-        self.cpp_info.set_property("cmake_module_file_name", "FlatBuffers")
-        self.cpp_info.set_property("cmake_file_name", "Flatbuffers")
+        self.cpp_info.set_property("cmake_module_file_name", "flatbuffers")
+        self.cpp_info.set_property("cmake_file_name", "flatbuffers")
         cmake_target = "flatbuffers"
         if not self.options.header_only and self.options.shared:
             cmake_target += "_shared"
@@ -157,8 +172,8 @@ class FlatbuffersConan(ConanFile):
             self.env_info.PATH.append(bindir)
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "FlatBuffers"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Flatbuffers"
+        self.cpp_info.filenames["cmake_find_package"] = "flatbuffers"
+        self.cpp_info.filenames["cmake_find_package_multi"] = "flatbuffers"
         self.cpp_info.names["cmake_find_package"] = "flatbuffers"
         self.cpp_info.names["cmake_find_package_multi"] = "flatbuffers"
         self.cpp_info.components["libflatbuffers"].names["cmake_find_package"] = cmake_target
