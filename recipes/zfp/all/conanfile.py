@@ -4,7 +4,7 @@ from conan.tools.files import copy, get, rmdir
 from conan.tools.microsoft import is_msvc
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.54.0"
 
 
 class ZfpConan(ConanFile):
@@ -13,7 +13,7 @@ class ZfpConan(ConanFile):
     homepage = "https://github.com/LLNL/zfp"
     url = "https://github.com/conan-io/conan-center-index"
     license = "BSD-3-Clause"
-    topics = ("zfp", "compression", "arrays")
+    topics = ("compression", "arrays")
 
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -47,20 +47,19 @@ class ZfpConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-
-    def validate(self):
-        if self.info.options.with_cuda:
-            self.output.warn("Conan package for CUDA is not available, this package will be used from system.")
-        if self.info.options.with_openmp:
-            self.output.warn("Conan package for OpenMP is not available, this package will be used from system.")
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def validate(self):
+        if self.options.with_cuda:
+            self.output.warn("Conan package for CUDA is not available, this package will be used from system.")
+        if self.options.with_openmp:
+            self.output.warn("Conan package for OpenMP is not available, this package will be used from system.")
+
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -78,8 +77,6 @@ class ZfpConan(ConanFile):
         if self.settings.os != "Windows" and not self.options.shared:
             tc.variables["ZFP_ENABLE_PIC"] = self.options.fPIC
         tc.variables["BUILD_TESTING"] = False
-        # Honor BUILD_SHARED_LIBS from conan_toolchain (see https://github.com/conan-io/conan/issues/11840)
-        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.generate()
 
     def build(self):
@@ -118,6 +115,9 @@ class ZfpConan(ConanFile):
 
             self.cpp_info.components["_zfp"].sharedlinkflags = openmp_flags
             self.cpp_info.components["_zfp"].exelinkflags = openmp_flags
+
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.components["_zfp"].system_libs.append("m")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.components["_zfp"].names["cmake_find_package"] = "zfp"
