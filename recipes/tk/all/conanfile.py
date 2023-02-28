@@ -46,18 +46,10 @@ class TkConan(ConanFile):
     def configure(self):
         self.win_bash = self._settings_build.os == "Windows" and not is_msvc(self)
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except ValueError:
-                pass
-        try:
-            del self.settings.compiler.libcxx  # for plain C projects only
-        except ValueError:
-            pass
-        try:
-            del self.settings.compiler.cppstd  # for plain C projects only
-        except ValueError:
-            pass
+            self.options.rm_safe("fPIC")
+        # for plain C projects only
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
         self.options["tcl"].shared = self.options.shared
 
     def layout(self):
