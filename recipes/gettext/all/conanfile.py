@@ -5,10 +5,10 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import Environment, VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.gnu import AutotoolsToolchain, Autotools
-from conan.tools.microsoft import check_min_vs, is_msvc, unix_path, unix_path_package_info_legacy
+from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.57.0"
+required_conan_version = ">=1.56.0"
 
 class GetTextConan(ConanFile):
     name = "gettext"
@@ -118,9 +118,9 @@ class GetTextConan(ConanFile):
     def package(self):
         autotools = Autotools(self)
         autotools.install()
-        
+
         copy(self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
- 
+
         rmdir(self, os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "include"))
         rmdir(self, os.path.join(self.package_folder, "share", "doc"))
@@ -135,14 +135,14 @@ class GetTextConan(ConanFile):
         autopoint = os.path.join(self.package_folder, "bin", "autopoint")
         self.buildenv_info.append_path("ACLOCAL_PATH", aclocal)
         self.buildenv_info.define_path("AUTOPOINT", autopoint)
-        
+
         # TODO: the following can be removed when the recipe supports Conan >= 2.0 only
         bindir = os.path.join(self.package_folder, "bin")
         self.output.info("Appending PATH environment variable: {}".format(bindir))
         self.env_info.PATH.append(bindir)
 
         self.output.info("Appending AUTOMAKE_CONAN_INCLUDES environment variable: {}".format(aclocal))
-        self.env_info.AUTOMAKE_CONAN_INCLUDES.append(unix_path_package_info_legacy(self, aclocal))
+        self.env_info.AUTOMAKE_CONAN_INCLUDES.append(unix_path(self, aclocal))
 
         self.output.info("Setting AUTOPOINT environment variable: {}".format(autopoint))
-        self.env_info.AUTOPOINT = unix_path_package_info_legacy(self, autopoint)
+        self.env_info.AUTOPOINT = unix_path(self, autopoint)
