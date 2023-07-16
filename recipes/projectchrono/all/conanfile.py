@@ -36,10 +36,10 @@ class PackageConan(ConanFile):
         "enable_module_cascade": [True, False],
         "enable_module_cosimulation": [True, False],
         "enable_module_distributed": [True, False],
-        "enable_module_irrlicht": [True, False],
+        #        "enable_module_irrlicht": [True, False],  FIXME: Irrlicht is not yet supported no Conan package in CCI
         "enable_module_matlab": [True, False],
         "enable_module_mkl": [True, False],
-        "enable_module_mumps": [True, False],
+        # "enable_module_mumps": [True, False],  FIXME: mumps is not yet supported no Conan package in CCI
         "enable_module_parallel": [True, False],
         "enable_module_opengl": [True, False],
         "enable_module_ogre": [True, False],
@@ -60,10 +60,10 @@ class PackageConan(ConanFile):
         "enable_module_cascade": False,
         "enable_module_cosimulation": False,
         "enable_module_distributed": False,
-        "enable_module_irrlicht": False,
+        #        "enable_module_irrlicht": False,  FIXME: Irrlicht is not yet supported no Conan package in CCI
         "enable_module_matlab": False,
         "enable_module_mkl": False,
-        "enable_module_mumps": False,
+        # "enable_module_mumps": False,  FIXME: mumps is not yet supported no Conan package in CCI
         "enable_module_parallel": False,
         "enable_module_opengl": False,
         "enable_module_ogre": False,
@@ -97,7 +97,7 @@ class PackageConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
             if self.options.enable_module_parallel:
-                if self.options.with_openmp:
+                if self.options.with_openmp:  # OpenMP takes precedence over TBB
                     self.options["thrust"].device_system = "omp"
                 elif self.options.with_tbb:
                     self.options["thrust"].device_system = "tbb"
@@ -106,21 +106,15 @@ class PackageConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
+        self.requires("zlib/1.2.13")
+        self.requires("openmpi/4.1.0")
+        self.requires("eigen/3.4.0")
         if self.options.with_openmp:
             self.requires("llvm-openmp/12.0.1")
         if self.options.with_tbb:
             self.requires("onetbb/2021.9.0")
-        self.requires("zlib/1.2.13")
-        self.requires("openmpi/4.1.0")
-        self.requires("eigen/3.4.0")
         if self.options.with_hdf5:
             self.requires("hdf5/1.14.1")
-        if self.options.enable_module_irrlicht:
-            self.requires("irrlicht/1.8.4")  # TODO: create Conan package for irrlicht
-            self.requires("openssl/1.1.1u")
-        if self.options.enable_module_mumps:
-            # self.requires("mumps")  # TODO create Conan package for mumps
-            self.requires("openblas/0.3.0")
         if self.options.enable_module_opengl:
             self.requires("opengl/system")
             self.requires("glm/0.9.9.8")
@@ -157,13 +151,13 @@ class PackageConan(ConanFile):
         tc.variables["ENABLE_TBB"] = self.options.with_tbb
         tc.variables["ENABLE_HDF5"] = self.options.with_hdf5
         tc.variables["BUILD_TESTING"] = not self.conf.get("tools.build:skip_test", default=True, check_type=bool)
-        tc.variables["ENABLE_UNIT_CASCADE"] = self.options.enable_module_cascade
+        tc.variables["ENABLE_MODULE_CASCADE"] = self.options.enable_module_cascade
         tc.variables["ENABLE_MODULE_COSIMULATION"] = self.options.enable_module_cosimulation
         tc.variables["ENABLE_MODULE_DISTRIBUTED"] = self.options.enable_module_distributed
-        tc.variables["ENABLE_MODULE_IRRLICHT"] = self.options.enable_module_irrlicht
+        tc.variables["ENABLE_MODULE_IRRLICHT"] = False  # FIXME: Irrlicht is not yet supported no Conan package in CCI
         tc.variables["ENABLE_MODULE_MATLAB"] = self.options.enable_module_matlab
         tc.variables["ENABLE_MODULE_MKL"] = self.options.enable_module_mkl
-        tc.variables["ENABLE_MODULE_MUMPS"] = self.options.enable_module_mumps
+        tc.variables["ENABLE_MODULE_MUMPS"] = False  # FIXME: mumps is not yet supported no Conan package in CCI
         tc.variables["ENABLE_MODULE_PARALLEL"] = self.options.enable_module_parallel
         if self.options.enable_module_parallel:
             tc.variables["THRUST_INCLUDE_DIR"] = self.deps_cpp_info["thrust"].include_paths[0]
