@@ -176,6 +176,7 @@ class PackageConan(ConanFile):
         tc.set_property("eigen", "cmake_find_mode", "module")
         tc.set_property("openmpi", "cmake_find_mode", "module")
         tc.set_property("openmpi", "cmake_file_name", "MPI")
+        tc.set_property("llvm-openmp", "cmake_find_mode", "module")
         tc.generate()
 
     def _patch_sources(self):
