@@ -92,6 +92,9 @@ class PackageConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+        # FIXME: CUDA support for FSI https://cpplang.slack.com/archives/C41CWV9HA/p1689534061581899
+        if "cuda" not in self.conf.get("tools.build:compiler_executables", default=[], check_type=list):
+            del self.options.enable_module_fsi
 
     def configure(self):
         if self.options.shared:
@@ -170,7 +173,9 @@ class PackageConan(ConanFile):
         tc.variables["ENABLE_MODULE_POSTPROCESS"] = self.options.enable_module_postprocess
         tc.variables["ENABLE_MODULE_PYTHON"] = self.options.enable_module_python
         tc.variables["ENABLE_MODULE_VEHICLE"] = self.options.enable_module_vehicle
-        tc.variables["ENABLE_MODULE_FSI"] = self.options.enable_module_fsi
+        tc.variables["ENABLE_MODULE_FSI"] = self.options.get_safe("enable_module_fsi", default=False)
+        if self.options.get_safe("enable_module_fsi", default=False):
+            tc.variables["USE_FSI_DOUBLE"] = True
         tc.variables["ENABLE_MODULE_GRANULAR"] = self.options.enable_module_granular
 
         if is_msvc(self):
