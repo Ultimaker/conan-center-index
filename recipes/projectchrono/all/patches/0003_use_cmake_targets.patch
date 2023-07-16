@@ -464,9 +464,181 @@
 -set(THRUST_INCLUDE_DIRS ${THRUST_INCLUDE_DIR})
 -mark_as_advanced(THRUST_INCLUDE_DIR)
 
+--- a/cmake/FindGLEW.cmake	(revision 30cd3f2702cb58182e46d5b2724d2d2850a50e21)
++++ /dev/null	(revision 30cd3f2702cb58182e46d5b2724d2d2850a50e21)
+@@ -1,46 +0,0 @@
+-#
+-# Try to find GLEW library and include path.
+-# Once done this will define
+-#
+-# GLEW_FOUND
+-# GLEW_INCLUDE_DIR
+-# GLEW_LIBRARY
+-# 
+-
+-IF (WIN32)
+-	FIND_PATH( GLEW_INCLUDE_DIR GL/glew.h
+-		$ENV{PROGRAMFILES}/GLEW/include
+-		${PROJECT_SOURCE_DIR}/src/nvgl/glew/include
+-		DOC "The directory where GL/glew.h resides")
+-	FIND_LIBRARY( GLEW_LIBRARY
+-		NAMES glew GLEW glew32 glew32s
+-		PATHS
+-		$ENV{PROGRAMFILES}/GLEW/lib
+-		${PROJECT_SOURCE_DIR}/src/nvgl/glew/bin
+-		${PROJECT_SOURCE_DIR}/src/nvgl/glew/lib
+-		DOC "The GLEW library")
+-ELSE (WIN32)
+-	FIND_PATH( GLEW_INCLUDE_DIR GL/glew.h
+-		/usr/include
+-		/usr/local/include
+-		/sw/include
+-		/opt/local/include
+-		DOC "The directory where GL/glew.h resides")
+-	FIND_LIBRARY( GLEW_LIBRARY
+-		NAMES GLEW glew
+-		PATHS
+-		/usr/lib64
+-		/usr/lib
+-		/usr/local/lib64
+-		/usr/local/lib
+-		/sw/lib
+-		/opt/local/lib
+-		DOC "The GLEW library")
+-ENDIF (WIN32)
+-
+-SET(GLEW_FOUND 0)
+-IF(GLEW_LIBRARY AND GLEW_INCLUDE_DIR)
+-  SET(GLEW_FOUND 1)
+-ENDIF()
+-
+-MARK_AS_ADVANCED( GLEW_FOUND )
+
+--- a/cmake/FindGLFW.cmake	(revision 30cd3f2702cb58182e46d5b2724d2d2850a50e21)
++++ /dev/null	(revision 30cd3f2702cb58182e46d5b2724d2d2850a50e21)
+@@ -1,53 +0,0 @@
+-# Locate the glfw library
+-# This module defines the following variables:
+-# GLFW_LIBRARY, the name of the library;
+-# GLFW_INCLUDE_DIR, where to find glfw include files.
+-# GLFW_FOUND, true if both the GLFW_LIBRARY and GLFW_INCLUDE_DIR have been found.
+-#
+-# To help locate the library and include file, you could define an environment variable called
+-# GLFW_ROOT which points to the root of the glfw library installation. This is pretty useful
+-# on a Windows platform.
+-#
+-#
+-# Usage example to compile an "executable" target to the glfw library:
+-#
+-# FIND_PACKAGE (glfw REQUIRED)
+-# INCLUDE_DIRECTORIES (${GLFW_INCLUDE_DIR})
+-# ADD_EXECUTABLE (executable ${EXECUTABLE_SRCS})
+-# TARGET_LINK_LIBRARIES (executable ${GLFW_LIBRARY})
+-#
+-# TODO:
+-# Allow the user to select to link to a shared library or to a static library.
+-
+-#Search for the include file...
+-FIND_PATH(GLFW_INCLUDE_DIR glfw3.h DOC "Path to GLFW include directory."
+-  HINTS
+-  $ENV{GLFW_ROOT}
+-  PATH_SUFFIX include/GL include/GLFW #For finding the include file under the root of the glfw expanded archive, typically on Windows.
+-  PATHS
+-  /usr/include/
+-  /usr/local/include/
+-  # By default headers are under GL subfolder
+-  /usr/include/GL
+-  /usr/local/include/GL
+-  /usr/include/GLFW
+-  /usr/local/include/GLFW
+-  ${GLFW_ROOT_DIR}/include/ # added by ptr
+- 
+-)
+-
+-FIND_LIBRARY(GLFW_LIBRARY DOC "Absolute path to GLFW library."
+-  NAMES glfw glfw3 GLFW.lib
+-  HINTS
+-  $ENV{GLFW_ROOT}
+-  PATH_SUFFIXES lib/win32 #For finding the library file under the root of the glfw expanded archive, typically on Windows.
+-  PATHS
+-  /usr/local/lib
+-  /usr/lib
+-  ${GLFW_ROOT_DIR}/lib-msvc100/release # added by ptr
+-)
+-
+-SET(GLFW_FOUND 0)
+-IF(GLFW_LIBRARY AND GLFW_INCLUDE_DIR)
+-  SET(GLFW_FOUND 1)
+-ENDIF(GLFW_LIBRARY AND GLFW_INCLUDE_DIR)
+
+--- a/cmake/FindGLM.cmake	(revision 30cd3f2702cb58182e46d5b2724d2d2850a50e21)
++++ /dev/null	(revision 30cd3f2702cb58182e46d5b2724d2d2850a50e21)
+@@ -1,61 +0,0 @@
+-# FindGLM - attempts to locate the glm matrix/vector library.
+-#
+-# This module defines the following variables (on success):
+-#   GLM_INCLUDE_DIRS  - where to find glm/glm.hpp
+-#   GLM_FOUND         - if the library was successfully located
+-#
+-# It is trying a few standard installation locations, but can be customized
+-# with the following variables:
+-#   GLM_ROOT_DIR      - root directory of a glm installation
+-#                       Headers are expected to be found in either:
+-#                       <GLM_ROOT_DIR>/glm/glm.hpp           OR
+-#                       <GLM_ROOT_DIR>/include/glm/glm.hpp
+-#                       This variable can either be a cmake or environment
+-#                       variable. Note however that changing the value
+-#                       of the environment varible will NOT result in
+-#                       re-running the header search and therefore NOT
+-#                       adjust the variables set by this module.
+-
+-#=============================================================================
+-# Copyright 2012 Carsten Neumann
+-#
+-# Distributed under the OSI-approved BSD License (the "License");
+-# see accompanying file Copyright.txt for details.
+-#
+-# This software is distributed WITHOUT ANY WARRANTY; without even the
+-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+-# See the License for more information.
+-#=============================================================================
+-# (To distribute this file outside of CMake, substitute the full
+-#  License text for the above reference.)
+-
+-# default search dirs
+-SET(_glm_HEADER_SEARCH_DIRS
+-    "/usr/include"
+-    "/usr/local/include")
+-
+-# check environment variable
+-SET(_glm_ENV_ROOT_DIR "$ENV{GLM_ROOT_DIR}")
+-
+-IF(NOT GLM_ROOT_DIR AND _glm_ENV_ROOT_DIR)
+-    SET(GLM_ROOT_DIR "${_glm_ENV_ROOT_DIR}")
+-ENDIF(NOT GLM_ROOT_DIR AND _glm_ENV_ROOT_DIR)
+-
+-# put user specified location at beginning of search
+-IF(GLM_ROOT_DIR)
+-    SET(_glm_HEADER_SEARCH_DIRS "${GLM_ROOT_DIR}"
+-                                "${GLM_ROOT_DIR}/include"
+-                                 ${_glm_HEADER_SEARCH_DIRS})
+-ENDIF(GLM_ROOT_DIR)
+-
+-# locate header
+-FIND_PATH(GLM_INCLUDE_DIR "glm/glm.hpp"
+-    PATHS ${_glm_HEADER_SEARCH_DIRS})
+-
+-INCLUDE(FindPackageHandleStandardArgs)
+-FIND_PACKAGE_HANDLE_STANDARD_ARGS(GLM DEFAULT_MSG
+-    GLM_INCLUDE_DIR)
+-
+-IF(GLM_FOUND)
+-    SET(GLM_INCLUDE_DIRS "${GLM_INCLUDE_DIR}")
+-ENDIF(GLM_FOUND)
+
 --- a/src/chrono/CMakeLists.txt	(revision 30cd3f2702cb58182e46d5b2724d2d2850a50e21)
-+++ b/src/chrono/CMakeLists.txt	(date 1689517433267)
-@@ -1405,7 +1405,18 @@
++++ b/src/chrono/CMakeLists.txt	(date 1689527113980)
+@@ -1405,7 +1405,22 @@
  # Add the ChronoEngine library to the project
  add_library(ChronoEngine SHARED ${ChronoEngine_FILES})
  
@@ -481,8 +653,13 @@
 +        $<TARGET_NAME_IF_EXISTS:CUB::CUB>
 +        $<TARGET_NAME_IF_EXISTS:OpenMP::OpenMP>
 +        $<TARGET_NAME_IF_EXISTS:hdf5::hdf5_cpp>
++        $<TARGET_NAME_IF_EXISTS:opengl::opengl>
++        $<TARGET_NAME_IF_EXISTS:glm::glm>
++        $<TARGET_NAME_IF_EXISTS:GLEW::GLEW>
++        $<TARGET_NAME_IF_EXISTS:glu::glu>
 +        )
 +
  if (UNIX)
    target_link_libraries(ChronoEngine pthread)
  endif()
+

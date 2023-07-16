@@ -161,6 +161,10 @@ class PackageConan(ConanFile):
         tc.variables["ENABLE_MODULE_PARALLEL"] = self.options.enable_module_parallel
         if self.options.enable_module_parallel:
             tc.variables["THRUST_INCLUDE_DIR"] = self.deps_cpp_info["thrust"].include_paths[0]
+        if self.options.enable_module_opengl:
+            tc.variables["GLM_INCLUDE_DIR"] = self.deps_cpp_info["glm"].include_paths[0]
+            tc.variables["GLEW_INCLUDE_DIR"] = self.deps_cpp_info["glew"].include_paths[0]
+            tc.variables["GLFW_INCLUDE_DIR"] = self.deps_cpp_info["glfw"].include_paths[0]
         tc.variables["ENABLE_MODULE_OPENGL"] = self.options.enable_module_opengl
         tc.variables["ENABLE_MODULE_OGRE"] = self.options.enable_module_ogre
         tc.variables["ENABLE_MODULE_POSTPROCESS"] = self.options.enable_module_postprocess
@@ -182,6 +186,13 @@ class PackageConan(ConanFile):
         tc.set_property("thrust", "cmake_find_mode", "module")
         tc.set_property("thrust", "cmake_file_name", "Thrust")
         tc.set_property("blaze", "cmake_find_mode", "module")
+        tc.set_property("opengl", "cmake_find_mode", "module")
+        tc.set_property("glm", "cmake_find_mode", "module")
+        tc.set_property("glm", "cmake_file_name", "GLM")
+        tc.set_property("glew", "cmake_find_mode", "module")
+        tc.set_property("glew", "cmake_file_name", "GLEW")
+        tc.set_property("glfw", "cmake_find_mode", "module")
+        tc.set_property("glfw", "cmake_file_name", "GLFW")
         tc.generate()
 
     def _patch_sources(self):
@@ -211,6 +222,8 @@ class PackageConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["ChronoEngine", "ChronoModels_robot"]
+        if self.options.enable_module_opengl:
+            self.cpp_info.libs.append("ChronoEngine_opengl")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
