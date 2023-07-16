@@ -1,0 +1,73 @@
+--- a/src/chrono_sensor/tensorrt/ChFilterONNX.cpp	(revision 30cd3f2702cb58182e46d5b2724d2d2850a50e21)
++++ b/src/chrono_sensor/tensorrt/ChFilterONNX.cpp	(date 1689497469693)
+@@ -43,8 +43,8 @@
+         InvalidFilterGraphBufferTypeMismatch(pSensor);
+     }
+ 
+-    // std::string network_model = "../data/sensor/neural_nets/identity_3layer_1920x1080.onnx";
+-    std::string network_model = "../data/sensor/neural_nets/identity_720p_2L.onnx";
++    // std::string network_model = "../res/sensor/neural_nets/identity_3layer_1920x1080.onnx";
++    std::string network_model = "../res/sensor/neural_nets/identity_720p_2L.onnx";
+ 
+     Logger l(NONE);  // NONE, PARTIAL,ALL
+     // create inference builder
+
+--- a/src/chrono_sensor/tensorrt/ChFilterUFF.cpp	(revision 30cd3f2702cb58182e46d5b2724d2d2850a50e21)
++++ b/src/chrono_sensor/tensorrt/ChFilterUFF.cpp	(date 1689497469709)
+@@ -43,7 +43,7 @@
+         InvalidFilterGraphBufferTypeMismatch(pSensor);
+     }
+ 
+-    std::string network_model = "../data/sensor/neural_nets/identity_2layer_1920x1080";
++    std::string network_model = "../res/sensor/neural_nets/identity_2layer_1920x1080";
+ 
+     Logger l(NONE);
+     // create inference builder
+
+--- a/src/chrono/core/ChGlobal.cpp	(revision 30cd3f2702cb58182e46d5b2724d2d2850a50e21)
++++ b/src/chrono/core/ChGlobal.cpp	(date 1689497469717)
+@@ -78,7 +78,7 @@
+ // Functions for manipulating the Chrono data directory
+ // -----------------------------------------------------------------------------
+ 
+-static std::string chrono_data_path("../data/");
++static std::string chrono_data_path("../res/");
+ 
+ // Set the path to the Chrono data directory (ATTENTION: not thread safe)
+ void SetChronoDataPath(const std::string& path) {
+
+--- a/src/chrono_synchrono/utils/SynDataLoader.cpp	(revision 30cd3f2702cb58182e46d5b2724d2d2850a50e21)
++++ b/src/chrono_synchrono/utils/SynDataLoader.cpp	(date 1689497469713)
+@@ -37,7 +37,7 @@
+ // Functions for manipulating the SynChrono data directory
+ // -----------------------------------------------------------------------------
+ 
+-static std::string synchrono_data_path("../data/synchrono/");
++static std::string synchrono_data_path("../res/synchrono/");
+ 
+ // Set the path to the SynChrono data directory (ATTENTION: not thread safe)
+ void SetDataPath(const std::string& path) {
+
+--- a/src/chrono/utils/ChUtilsValidation.cpp	(revision 30cd3f2702cb58182e46d5b2724d2d2850a50e21)
++++ b/src/chrono/utils/ChUtilsValidation.cpp	(date 1689497469717)
+@@ -419,7 +419,7 @@
+ // Functions for manipulating the validation data directory
+ // -----------------------------------------------------------------------------
+ 
+-static std::string validation_data_path("../data/");
++static std::string validation_data_path("../res/");
+ 
+ // Set the path to the directory containing reference validation data.
+ void SetValidationDataPath(const std::string& path)
+
+--- a/src/chrono_vehicle/ChVehicleModelData.cpp	(revision 30cd3f2702cb58182e46d5b2724d2d2850a50e21)
++++ b/src/chrono_vehicle/ChVehicleModelData.cpp	(date 1689497469705)
+@@ -22,7 +22,7 @@
+ namespace chrono {
+ namespace vehicle {
+ 
+-static std::string chrono_vehicle_data_path("../data/vehicle/");
++static std::string chrono_vehicle_data_path("../res/vehicle/");
+ 
+ // Set the path to the Chrono::Vehicle data directory (ATTENTION: not thread safe).
+ void SetDataPath(const std::string& path) {
