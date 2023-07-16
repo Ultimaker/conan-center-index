@@ -9,3 +9,8 @@ patches:
       patch_description: "Fix relative path of resources such that it points towards conan package conventions"
       patch_type: "conan"
       base_path: "."
+    - patch_file: "patches/0002_openmp_no_cuda.patch"
+      patch_description: "Fix redefinition warnings when compiling with OpenMP without CUDA"
+      patch_type: "bugfix"
+      patch_source: "https://github.com/projectchrono/chrono/pull/459"
+      base_path: "."

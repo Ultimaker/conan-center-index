@@ -96,36 +96,41 @@ class PackageConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+            if self.options.enable_module_parallel:
+                if self.options.with_openmp:
+                    self.options["thrust"].device_system = "omp"
+                elif self.options.with_tbb:
+                    self.options["thrust"].device_system = "tbb"
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.options.with_openmp:  # and str(self.settings.compiler) == 'clang':
-            self.requires.add("llvm-openmp/12.0.1")
+        if self.options.with_openmp:
+            self.requires("llvm-openmp/12.0.1")
         if self.options.with_tbb:
-            self.requires.add("tbb/2020.3")
-        self.requires.add("zlib/1.2.13")
-        self.requires.add("openmpi/4.1.0")
-        self.requires.add("eigen/3.4.0")
+            self.requires("onetbb/2021.9.0")
+        self.requires("zlib/1.2.13")
+        self.requires("openmpi/4.1.0")
+        self.requires("eigen/3.4.0")
         if self.options.with_hdf5:
-            self.requires.add("hdf5/1.14.1")
+            self.requires("hdf5/1.14.1")
         if self.options.enable_module_irrlicht:
-            self.requires.add("irrlicht/1.8.4")  # TODO: create Conan package for irrlicht
-            self.requires.add("openssl/1.1.1u")
+            self.requires("irrlicht/1.8.4")  # TODO: create Conan package for irrlicht
+            self.requires("openssl/1.1.1u")
         if self.options.enable_module_mumps:
-            # self.requires.add("mumps")  # TODO create Conan package for mumps
-            self.requires.add("openblas/0.3.0")
+            # self.requires("mumps")  # TODO create Conan package for mumps
+            self.requires("openblas/0.3.0")
         if self.options.enable_module_opengl:
-            self.requires.add("opengl/system")
-            self.requires.add("glm/0.9.9.8")
-            self.requires.add("glew/2.2.0")
-            self.requires.add("glfw/3.3.8")
+            self.requires("opengl/system")
+            self.requires("glm/0.9.9.8")
+            self.requires("glew/2.2.0")
+            self.requires("glfw/3.3.8")
         if self.options.enable_module_parallel:
-            self.requires.add("thrust/1.17.2")
-            self.requires.add("blaze/3.8")
+            self.requires("thrust/1.17.2")
+            self.requires("blaze/3.8")
         if self.options.enable_module_python:
-            self.requires.add("swig/4.1.0")
+            self.requires("swig/4.1.0")
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -151,7 +156,7 @@ class PackageConan(ConanFile):
         tc.variables["ENABLE_OPENMP"] = self.options.with_openmp
         tc.variables["ENABLE_TBB"] = self.options.with_tbb
         tc.variables["ENABLE_HDF5"] = self.options.with_hdf5
-        tc.variables["BUILD_TESTING"] = not self.conf.get("tools.build:skip_test", default = True, check_type = bool)
+        tc.variables["BUILD_TESTING"] = not self.conf.get("tools.build:skip_test", default=True, check_type=bool)
         tc.variables["ENABLE_UNIT_CASCADE"] = self.options.enable_module_cascade
         tc.variables["ENABLE_MODULE_COSIMULATION"] = self.options.enable_module_cosimulation
         tc.variables["ENABLE_MODULE_DISTRIBUTED"] = self.options.enable_module_distributed
@@ -160,6 +165,8 @@ class PackageConan(ConanFile):
         tc.variables["ENABLE_MODULE_MKL"] = self.options.enable_module_mkl
         tc.variables["ENABLE_MODULE_MUMPS"] = self.options.enable_module_mumps
         tc.variables["ENABLE_MODULE_PARALLEL"] = self.options.enable_module_parallel
+        if self.options.enable_module_parallel:
+            tc.variables["THRUST_INCLUDE_DIR"] = self.deps_cpp_info["thrust"].include_paths[0]
         tc.variables["ENABLE_MODULE_OPENGL"] = self.options.enable_module_opengl
         tc.variables["ENABLE_MODULE_OGRE"] = self.options.enable_module_ogre
         tc.variables["ENABLE_MODULE_POSTPROCESS"] = self.options.enable_module_postprocess
@@ -174,9 +181,13 @@ class PackageConan(ConanFile):
 
         tc = CMakeDeps(self)
         tc.set_property("eigen", "cmake_find_mode", "module")
-        tc.set_property("openmpi", "cmake_find_mode", "module")
+        tc.set_property("openmpi", "cmake_find_mode", "both")
         tc.set_property("openmpi", "cmake_file_name", "MPI")
-        tc.set_property("llvm-openmp", "cmake_find_mode", "module")
+        tc.set_property("llvm-openmp", "cmake_find_mode", "both")
+        tc.set_property("onetbb", "cmake_find_mode", "module")
+        tc.set_property("thrust", "cmake_find_mode", "module")
+        tc.set_property("thrust", "cmake_file_name", "Thrust")
+        tc.set_property("blaze", "cmake_find_mode", "module")
         tc.generate()
 
     def _patch_sources(self):

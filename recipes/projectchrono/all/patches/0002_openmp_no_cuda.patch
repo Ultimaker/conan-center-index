@@ -1,0 +1,13 @@
+--- a/src/chrono/ChConfig.h.in	(revision 30cd3f2702cb58182e46d5b2724d2d2850a50e21)
++++ b/src/chrono/ChConfig.h.in	(date 1689506400483)
+@@ -188,7 +188,9 @@
+ 
+ // If CUDA is not available, force Thrust to always use the OMP backend
+ #ifndef CHRONO_HAS_CUDA
+-  #define THRUST_DEVICE_SYSTEM THRUST_DEVICE_SYSTEM_OMP
++  #ifndef THRUST_DEVICE_SYSTEM
++    #define THRUST_DEVICE_SYSTEM THRUST_DEVICE_SYSTEM_OMP
++  #endif
+ #endif
+ 
+ // -----------------------------------------------------------------------------
