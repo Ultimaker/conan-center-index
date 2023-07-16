@@ -229,6 +229,8 @@ class PackageConan(ConanFile):
         self.cpp_info.libs = ["ChronoEngine", "ChronoModels_robot"]
         if self.options.enable_module_opengl:
             self.cpp_info.libs.append("ChronoEngine_opengl")
+        if self.options.enable_module_cosimulation:
+            self.cpp_info.libs.append("ChronoEngine_cosimulation")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
