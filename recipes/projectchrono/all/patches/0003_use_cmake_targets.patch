@@ -464,21 +464,23 @@
 -set(THRUST_INCLUDE_DIRS ${THRUST_INCLUDE_DIR})
 -mark_as_advanced(THRUST_INCLUDE_DIR)
 
---- a/src/chrono/CMakeLists.txt	(revision 4c16aeb5c204cfb021452a993dab6c67b1bd3b08)
-+++ b/src/chrono/CMakeLists.txt	(date 1689513458504)
-@@ -1372,7 +1372,16 @@
+--- a/src/chrono/CMakeLists.txt	(revision 30cd3f2702cb58182e46d5b2724d2d2850a50e21)
++++ b/src/chrono/CMakeLists.txt	(date 1689517433267)
+@@ -1405,7 +1405,18 @@
  # Add the ChronoEngine library to the project
  add_library(ChronoEngine SHARED ${ChronoEngine_FILES})
  
 -target_link_libraries(ChronoEngine ${OPENMP_LIBRARIES} ${CH_SOCKET_LIB})
 +target_link_libraries(ChronoEngine
 +        ${CH_SOCKET_LIB}
-+        $<TARGET_NAME_IF_EXISTS:TBB::tbb>
++        $<TARGET_NAME_IF_EXISTS:Eigen3::Eigen>
 +        $<TARGET_NAME_IF_EXISTS:openmpi::openmpi>
 +        $<TARGET_NAME_IF_EXISTS:ZLIB::ZLIB>
++        $<TARGET_NAME_IF_EXISTS:TBB::tbb>
 +        $<TARGET_NAME_IF_EXISTS:thrust::thrust>
 +        $<TARGET_NAME_IF_EXISTS:CUB::CUB>
 +        $<TARGET_NAME_IF_EXISTS:OpenMP::OpenMP>
++        $<TARGET_NAME_IF_EXISTS:hdf5::hdf5_cpp>
 +        )
 +
  if (UNIX)

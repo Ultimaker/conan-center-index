@@ -1,0 +1,11 @@
+--- a/src/CMakeLists.txt	(revision 30cd3f2702cb58182e46d5b2724d2d2850a50e21)
++++ b/src/CMakeLists.txt	(date 1689517433387)
+@@ -512,7 +512,7 @@
+         if (HDF5_FOUND)
+             set(HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIR})
+             set(HDF5_C_LIBRARIES ${HDF5_C_${LIB_TYPE}_LIBRARY})
+-            set(HDF5_CXX_LIBRARIES ${HDF5_CXX_${LIB_TYPE}_LIBRARY)
++            set(HDF5_CXX_LIBRARIES ${HDF5_CXX_${LIB_TYPE}_LIBRARY})
+         endif()
+     endif()
+ 
