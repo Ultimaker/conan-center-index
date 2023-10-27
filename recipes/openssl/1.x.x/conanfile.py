@@ -228,7 +228,7 @@ class OpenSSLConan(ConanFile):
 
     def requirements(self):
         if self._full_version < "1.1.0" and not self.options.get_safe("no_zlib"):
-            self.requires("zlib/1.2.13")
+            self.requires("zlib/[>=1.2.11 <2]")
 
     def validate(self):
         if self.settings.os == "Emscripten":
@@ -649,6 +649,10 @@ class OpenSSLConan(ConanFile):
             if self.options.get_safe("fPIC", True):
                 shared_cflag='shared_cflag => "-fPIC",'
 
+        if self.settings.os in ["iOS", "tvOS", "watchOS"] and self.conf.get("tools.apple:enable_bitcode", check_type=bool):
+            cflags.append("-fembed-bitcode")
+            cxxflags.append("-fembed-bitcode")
+        
         config = config_template.format(targets=targets,
                                         target=self._target,
                                         ancestor=ancestor,
@@ -901,6 +905,8 @@ class OpenSSLConan(ConanFile):
         elif self.settings.os == "Neutrino":
             self.cpp_info.components["crypto"].system_libs.append("atomic")
             self.cpp_info.components["ssl"].system_libs.append("atomic")
+            self.cpp_info.components["crypto"].system_libs.append("socket")
+            self.cpp_info.components["ssl"].system_libs.append("socket")
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "OpenSSL"
