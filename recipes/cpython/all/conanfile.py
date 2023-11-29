@@ -315,7 +315,7 @@ class CPythonConan(ConanFile):
             tc = AutotoolsToolchain(self)
             yes_no = lambda v: "yes" if v else "no"
             tc.configure_args = [
-                f"--prefix={self.package_path}",
+                f"--prefix=/bin",
                 f"--enable-shared={yes_no(self.options.get_safe('shared', False))}",
                 f"--with-doc-strings={yes_no(self.options.get_safe('docstrings', False))}",
                 f"--with-pymalloc={yes_no(self.options.get_safe('pymalloc', False))}",
@@ -694,7 +694,7 @@ class CPythonConan(ConanFile):
                 self._msvc_package_layout()
         else:
             autotools = Autotools(self)
-            autotools.install(args=[])
+            autotools.install(target="altinstall", args=["DESTDIR={}".format(self.package_folder)])
             rmdir(self, self._lib_path.joinpath("pkgconfig"))
             rmdir(self, self._install_path.joinpath("share"))
 
