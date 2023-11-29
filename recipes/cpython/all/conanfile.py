@@ -232,7 +232,7 @@ class CPythonConan(ConanFile):
         if self.settings.os != "Windows":
             self.requires("libxcrypt/4.4.28")
         if self.settings.os == "Linux":
-            self.requires("libuuid/1.0.3")
+            self.requires("util-linux-libuuid/2.39.2")
         if self.options.get_safe("with_bz2", False):
             self.requires("bzip2/1.0.8")
         if self.options.get_safe("with_gdbm", False):
@@ -789,7 +789,7 @@ class CPythonConan(ConanFile):
             if self.settings.os != "Windows":
                 self.cpp_info.components["_hidden"].requires.append("libxcrypt::libxcrypt")
             if self.settings.os == "Linux":
-                self.cpp_info.components["_hidden"].requires.append("libuuid::libuuid")
+                self.cpp_info.components["_hidden"].requires.append("util-linux-libuuid::util-linux-libuuid")
             if self.options.get_safe("with_bz2", False):
                 self.cpp_info.components["_hidden"].requires.append("bzip2::bzip2")
             if self.options.get_safe("with_gdbm", False):
