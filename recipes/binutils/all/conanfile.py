@@ -477,6 +477,9 @@ class _TestOsArch2GNUTriplet(unittest.TestCase):
     def test_windows_x86_64(self):
         self._test_osarch_to_gnutriplet(_ArchOs(arch="x86_64", os="Windows"), _GNUTriplet(machine="x86_64", vendor="w64", os="mingw32", abi=None), "x86_64-w64-mingw32")
 
+    def test_windows_armv8(self):
+        self._test_osarch_to_gnutriplet(_ArchOs(arch="armv8", os="Windows"), _GNUTriplet(machine="aarch64", vendor="w64", os="mingw32", abi=None), "aarch64-w64-mingw32")
+
     def test_macos_x86_64(self):
         self._test_osarch_to_gnutriplet(_ArchOs(arch="x86_64", os="Macos"), _GNUTriplet(machine="x86_64", vendor="apple", os="darwin", abi=None), "x86_64-apple-darwin")
 

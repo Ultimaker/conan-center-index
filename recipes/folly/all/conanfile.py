@@ -116,7 +116,7 @@ class FollyConan(ConanFile):
         if self.settings.os == "Macos" and self.settings.arch != "x86_64":
             raise ConanInvalidConfiguration("Conan currently requires a 64bit target architecture for Folly on Macos")
 
-        if self.settings.os == "Windows" and self.settings.arch != "x86_64":
+        if self.settings.os == "Windows" and self.settings.arch not in ("x86_64", "armv8"):
             raise ConanInvalidConfiguration("Folly requires a 64bit target architecture on Windows")
 
         if self.settings.os in ["Macos", "Windows"] and self.options.shared:
