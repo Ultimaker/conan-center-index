@@ -75,6 +75,7 @@ class SevenZipConan(ConanFile):
         return {
             "x86_64": "x64",
             "x86": "x86",
+            "armv8": "ARM64",
         }[str(self.settings.arch)]
 
     def _build_msvc(self):

@@ -93,7 +93,7 @@ class OpenvrConan(ConanFile):
 
     @property
     def _lib_name(self):
-        if self.settings.os == "Windows" and self.settings.arch == "x86_64":
+        if self.settings.os == "Windows" and self.settings.arch in ("x86_64", "armv8"):
             return "openvr_api64"
         return "openvr_api"
 
