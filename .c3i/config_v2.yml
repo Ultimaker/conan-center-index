@@ -113,7 +113,7 @@ configurations:
       os: "Windows"
     content:
       - os: [ "Windows" ]
-        arch: [ "x86_64" ]
+        arch: [ "x86_64", "armv8" ]
         compiler:
           - "msvc":
               compiler.version: [ "192", "193" ]
@@ -137,6 +137,9 @@ jenkins:
 node_labels:
   Windows:
     x86_64:
+      "msvc":
+        default: "windows20230531"
+    armv8:
       "msvc":
         default: "windows20230531"
   Macos:

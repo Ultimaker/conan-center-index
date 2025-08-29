@@ -47,7 +47,7 @@ For more information see [conan-io/conan-docker-tools](https://github.com/conan-
   - 2019 (19.29.30148)
   
 - Release (MT/MD) and Debug (MTd, MDd)
-- Architectures: x86_64
+- Architectures: x86_64, armv8
 - Build types: Release, Debug
 - Runtimes: MT/MD (Release), MTd/MDd (Debug)
 - Options:
