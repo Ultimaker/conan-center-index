@@ -52,7 +52,7 @@ class CpuFeaturesConan(ConanFile):
         if Version(self.version) >= "0.7.0":
             tc.variables["BUILD_TESTING"] = False
         # TODO: should be handled by CMake helper
-        if is_apple_os(self) and self.settings.arch in ["armv8", "armv8_32", "armv8.3"]:
+        if self.settings.arch in ["armv8", "armv8_32", "armv8.3"] and (is_apple_os(self) or self.settings.os == "Windows"):
             tc.variables["CMAKE_SYSTEM_PROCESSOR"] = "aarch64"
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()

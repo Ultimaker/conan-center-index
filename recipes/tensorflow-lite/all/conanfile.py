@@ -127,7 +127,7 @@ class TensorflowLiteConan(ConanFile):
             "clog_POPULATED": True,
         })
         if self.settings.arch == "armv8":
-            # Not defined by Conan for Apple Silicon. See https://github.com/conan-io/conan/pull/8026
+            # Not defined by Conan for Apple Silicon and Windows ARM. See https://github.com/conan-io/conan/pull/8026
             tc.variables["CMAKE_SYSTEM_PROCESSOR"] = "arm64"
         tc.generate()
         deps = CMakeDeps(self)
