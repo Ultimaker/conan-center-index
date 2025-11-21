@@ -156,14 +156,26 @@ class TclConan(ConanFile):
         if "d" not in msvc_runtime_flag(self):
             opts.append("unchecked")
 
+        # Handle ARM64 architecture - tcl's build system expects "ARM64" for armv8
+        machine_arg = ""
+        if self.settings.arch == "armv8":
+            machine_arg = "MACHINE=ARM64"
+        elif self.settings.arch == "x86_64":
+            machine_arg = "MACHINE=AMD64"
+        elif self.settings.arch == "x86":
+            machine_arg = "MACHINE=IX86"
+
         win_config_dir = os.path.join(self.source_folder, "win")
         with chdir(self, win_config_dir):
-            self.run('nmake -nologo -f "{cfgdir}/makefile.vc" INSTALLDIR="{pkgdir}" OPTS={opts} {targets}'.format(
+            cmd = 'nmake -nologo -f "{cfgdir}/makefile.vc" INSTALLDIR="{pkgdir}" OPTS={opts} {machine} {targets}'.format(
                 cfgdir=win_config_dir,
                 pkgdir=self.package_folder,
                 opts=",".join(opts),
+                machine=machine_arg,
                 targets=" ".join(targets),
-            ))
+            )
+            self.output.info(f"Running: {cmd}")
+            self.run(cmd)
 
     def _get_configure_subdir(self):
         return {

@@ -199,6 +199,11 @@ class TkConan(ConanFile):
             "TCLIMPLIB": tclimplib,
             "TCLSTUBLIB": tclstublib,
         }
+        
+        # Add MACHINE parameter for ARM64 builds
+        if self.settings.arch == "armv8":
+            flags["MACHINE"] = "ARM64"
+            
         config_dir = self._get_configure_folder("win")
         with chdir(self, config_dir):
             self.run(
@@ -208,6 +213,19 @@ class TkConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
+        
+        # Add ARM64 cross-compilation support for Windows - only if pattern exists
+        if is_msvc(self) and self.settings.arch == "armv8":
+            makefile_vc = os.path.join(self.source_folder, "win", "makefile.vc")
+            try:
+                replace_in_file(self,
+                               makefile_vc,
+                               "!if \"$(MACHINE)\" == \"ARM64\"",
+                               "!if \"$(MACHINE)\" == \"ARM64\" || \"$(VSCMD_ARG_TGT_ARCH)\" == \"arm64\"")
+            except ConanException:
+                # Pattern not found, ARM64 support may already be built-in or not needed
+                self.output.info("ARM64 makefile pattern not found, proceeding without patch")
+        
         if is_msvc(self):
             self._build_nmake()
         else:

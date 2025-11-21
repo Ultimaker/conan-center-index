@@ -5,6 +5,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.layout import basic_layout
 from conan.tools.build import check_min_cppstd
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -132,6 +133,14 @@ class FmtConan(ConanFile):
                 self.cpp_info.components["_fmt"].system_libs.extend(["m"])
             if self.options.shared:
                 self.cpp_info.components["_fmt"].defines.append("FMT_SHARED")
+
+        if is_msvc(self):
+            if self.options.get_safe("with_unicode", default=True):
+                self.cpp_info.components["_fmt"].cxxflags.append("/utf-8")
+            else:
+                # Set the FMT_UNICODE=0, as defined publicly upstream
+                # https://github.com/fmtlib/fmt/blob/11.1.1/CMakeLists.txt#L371
+                self.cpp_info.components["_fmt"].defines.append("FMT_UNICODE=0")
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "fmt"

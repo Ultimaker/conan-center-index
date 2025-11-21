@@ -54,7 +54,7 @@ class MpdecimalConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        if is_msvc(self) and self.settings.arch not in ("x86", "x86_64"):
+        if is_msvc(self) and self.settings.arch not in ("x86", "x86_64", "armv8"):
             raise ConanInvalidConfiguration(
                 f"{self.ref} currently does not supported {self.settings.arch}. Contributions are welcomed")
         if self.options.cxx:
@@ -134,7 +134,7 @@ class MpdecimalConan(ConanFile):
             with chdir(self, build_dir):
                 self.run("""nmake -f Makefile.vc {target} MACHINE={machine} DEBUG={debug} DLL={dll}""".format(
                     target=target,
-                    machine={"x86": "ppro", "x86_64": "x64"}[str(self.settings.arch)],
+                    machine={"x86": "ppro", "x86_64": "x64", "armv8": "ARM64"}[str(self.settings.arch)],
                     # FIXME: else, use ansi32 and ansi64
                     debug="1" if self.settings.build_type == "Debug" else "0",
                     dll="1" if self.options.shared else "0",

@@ -111,8 +111,12 @@ class CPythonConan(ConanFile):
         if self._supports_modules:
             self.requires("openssl/[>=1.1 <4]")
             self.requires("expat/[>=2.6.2 <3]")
-            self.requires("libffi/3.4.4")
-            if Version(self.version) < "3.10" or is_apple_os(self):
+            self.requires("libffi/3.4.8")
+            # mpdecimal version selection based on platform and Python version
+            if self.settings.os == "Windows" and self.settings.arch == "armv8":
+                # ARM64 Windows requires mpdecimal 4.0.1 (minimum 4.0.0)
+                self.requires("mpdecimal/4.0.1")
+            elif Version(self.version) < "3.10" or is_apple_os(self):
                 # FIXME: mpdecimal > 2.5.0 on MacOS causes the _decimal module to not be importable
                 self.requires("mpdecimal/2.5.0")
             else:
@@ -136,7 +140,7 @@ class CPythonConan(ConanFile):
         if self.options.get_safe("with_sqlite3"):
             self.requires("sqlite3/3.45.2")
         if self.options.get_safe("with_tkinter"):
-            self.requires("tk/8.6.10")
+            self.requires("tk/8.6.13")
         if self.options.get_safe("with_curses", False):
             # Used in a public header
             # https://github.com/python/cpython/blob/v3.10.13/Include/py_curses.h#L34

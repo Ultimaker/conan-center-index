@@ -75,7 +75,14 @@ class LibffiConan(ConanFile):
             "--enable-docs=no",
         ])
 
-        if self._settings_build.compiler == "apple-clang":
+        # Add explicit cross-compilation targets for ARM64
+        if self.settings.arch == "armv8" and self.settings.os == "Windows":
+            tc.configure_args.extend([
+                "--build=x86_64-w64-mingw32",
+                "--host=aarch64-w64-mingw32",
+            ])
+
+        if self.settings_build.compiler == "apple-clang":
             tc.configure_args.append("--disable-multi-os-directory")
 
         tc.extra_defines.append("FFI_BUILDING")
