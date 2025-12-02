@@ -174,7 +174,6 @@ class TclConan(ConanFile):
                 machine=machine_arg,
                 targets=" ".join(targets),
             )
-            self.output.info(f"Running: {cmd}")
             self.run(cmd)
 
     def _get_configure_subdir(self):
