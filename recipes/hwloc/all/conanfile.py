@@ -4,6 +4,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
+from conan.tools.files import replace_in_file
 import os
 
 required_conan_version = ">=1.53.0"
@@ -75,7 +76,6 @@ class HwlocConan(ConanFile):
         if self.settings.os == "Windows":
             # ARM64 workaround: patch source files for ARM64 support
             if self.settings.arch == "armv8":
-                from conan.tools.files import replace_in_file
                 cpuid_file = os.path.join(self.source_folder, "include", "private", "cpuid-x86.h")
                 if os.path.exists(cpuid_file):
                     replace_in_file(self, cpuid_file, 
