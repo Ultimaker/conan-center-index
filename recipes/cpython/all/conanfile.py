@@ -479,7 +479,7 @@ class CPythonConan(ConanFile):
     def _solution_projects(self):
         if self.options.shared:
             solution_path = os.path.join(self.source_folder, "PCbuild", "pcbuild.sln")
-            projects = set(m.group(1) for m in re.finditer('"([^"]+)\\.vcxproj"', open(solution_path).read()))
+            projects = set(m.group(1) for m in re.finditer('"([^"]+)\\.vcxproj"', open(solution_path, encoding="utf-8").read()))
 
             def project_build(name):
                 if os.path.basename(name) in self._msvc_discarded_projects:
@@ -640,7 +640,7 @@ class CPythonConan(ConanFile):
             name, version = get_name_version(fn)
             add = True
             if name in packages:
-                pname, pversion = get_name_version(packages[name])
+                _, pversion = get_name_version(packages[name])
                 add = Version(version) > Version(pversion)
             if add:
                 packages[name] = fn
