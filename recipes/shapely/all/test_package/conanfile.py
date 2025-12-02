@@ -1,6 +1,4 @@
-import os
 from conan import ConanFile
-from conan.tools.env import VirtualRunEnv
 
 
 class TestPackageConan(ConanFile):
