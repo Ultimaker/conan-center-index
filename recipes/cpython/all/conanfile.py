@@ -640,7 +640,7 @@ class CPythonConan(ConanFile):
             name, version = get_name_version(fn)
             add = True
             if name in packages:
-                _, pversion = get_name_version(packages[name])
+                pname, pversion = get_name_version(packages[name])
                 add = Version(version) > Version(pversion)
             if add:
                 packages[name] = fn
