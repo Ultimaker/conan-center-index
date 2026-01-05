@@ -49,7 +49,6 @@ class FFTWConan(ConanFile):
         "combinedthreads": False,
         "simd": False,
     }
-    _current_precision = None
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -91,12 +90,8 @@ class FFTWConan(ConanFile):
         tc.variables["ENABLE_SSE2"] = self.options.simd == "sse2"
         tc.variables["ENABLE_AVX"] = self.options.simd == "avx"
         tc.variables["ENABLE_AVX2"] = self.options.simd == "avx2"
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
-
-    @property
-    def build_folder(self):
-        bf = super().build_folder
-        return os.path.join(bf, self._current_precision) if self._current_precision else bf
 
     @property
     def _all_precisions(self):
@@ -107,29 +102,21 @@ class FFTWConan(ConanFile):
             return "ON" if value else 'OFF'
 
         apply_conandata_patches(self)
-        for self._current_precision in self._all_precisions:
+        for current_precision in self._all_precisions:
             cmake = CMake(self)
             variables = {
-                "ENABLE_FLOAT": on_off(self._current_precision == SINGLE),
-                "ENABLE_LONG_DOUBLE": on_off(self._current_precision == LONGDOUBLE),
-                "ENABLE_QUAD_PRECISION": on_off(self._current_precision == QUAD)
+                "ENABLE_FLOAT": on_off(current_precision == SINGLE),
+                "ENABLE_LONG_DOUBLE": on_off(current_precision == LONGDOUBLE),
+                "ENABLE_QUAD_PRECISION": on_off(current_precision == QUAD)
             }
             cmake.configure(variables=variables)
             cmake.build()
-
-        # Potentially avoid side effects due to build_folder property tweak.
-        self._current_precision = None
+            cmake.install()
 
     def package(self):
         copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        for self._current_precision in self._all_precisions:
-            cmake = CMake(self)
-            cmake.install()
-            rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-
-        # Potentially avoid side effects due to build_folder property tweak.
-        self._current_precision = None
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         cmake_config_name = cmake_namespace = "FFTW3"

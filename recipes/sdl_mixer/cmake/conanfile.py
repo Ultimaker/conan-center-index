@@ -62,7 +62,7 @@ class SDLMixerConan(ConanFile):
             del self.options.fPIC
         if self.settings.os not in ["Linux", "FreeBSD"]:
             del self.options.tinymidi
-        if not (self.settings.os == "Windows" or is_apple_os(self)):
+        if not (self.settings.os == "Windows" or self.settings.os == "Macos"):
             del self.options.nativemidi
 
     def configure(self):
@@ -89,7 +89,7 @@ class SDLMixerConan(ConanFile):
             raise ConanInvalidConfiguration("wavpack is not yet available in CCI, contributions are welcome")
 
     def requirements(self):
-        self.requires("sdl/2.28.5", transitive_headers=True, transitive_libs=True)
+        self.requires("sdl/[^2.28]", transitive_headers=True, transitive_libs=True)
         if self.options.flac:
             self.requires("flac/1.4.2")
         elif self.options.gme:
@@ -260,10 +260,10 @@ class SDLMixerConan(ConanFile):
         if self.settings.os == "Windows":
             if self.options.nativemidi:
                 self.cpp_info.system_libs.append("winmm")
-        elif is_apple_os(self):
-            self.cpp_info.frameworks.extend(["AudioToolbox", "AudioUnit", "CoreServices", "CoreGraphics", "CoreFoundation"])
+        elif is_apple_os(self) and not self.options.shared:
+            self.cpp_info.frameworks.extend(["AudioToolbox", "CoreServices", "CoreGraphics", "CoreFoundation"])
             if self.settings.os == "Macos":
-                self.cpp_info.frameworks.append("AppKit")
+                self.cpp_info.frameworks.extend(["AppKit", "AudioUnit"])
 
         self.cpp_info.names["cmake_find_package"] = "SDL2_mixer"
         self.cpp_info.names["cmake_find_package_multi"] = "SDL2_mixer"

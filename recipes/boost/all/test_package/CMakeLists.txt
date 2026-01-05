@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(test_package LANGUAGES CXX)
 
-if(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     # use RPATH instead of RUNPATH so that
     # transitive dependencies can be located
     add_link_options("LINKER:--disable-new-dtags")
@@ -34,6 +34,7 @@ if(NOT HEADER_ONLY)
         find_package(Boost COMPONENTS unit_test_framework REQUIRED)
         add_executable(test_exe test.cpp)
         target_link_libraries(test_exe PRIVATE Boost::unit_test_framework)
+        set_property(TARGET test_exe PROPERTY CXX_STANDARD 11)
         add_test(NAME boost_test COMMAND test_exe)
     endif()
 
@@ -41,6 +42,7 @@ if(NOT HEADER_ONLY)
         find_package(Boost COMPONENTS coroutine REQUIRED)
         add_executable(coroutine_exe coroutine.cpp)
         target_link_libraries(coroutine_exe PRIVATE Boost::coroutine)
+        set_property(TARGET coroutine_exe PROPERTY CXX_STANDARD 11)
         add_test(NAME coroutine_test COMMAND coroutine_exe)
     endif()
 
@@ -129,6 +131,14 @@ if(NOT HEADER_ONLY)
             set_property(TARGET stacktrace_basic_exe PROPERTY CXX_STANDARD 11)
             add_test(NAME boost_stacktrace_basic COMMAND stacktrace_basic_exe)
         endif()
+    endif()
+
+    if (WITH_PROCESS)
+        find_package(Boost COMPONENTS process REQUIRED)
+        add_executable(process_exe process.cpp)
+        target_link_libraries(process_exe PRIVATE Boost::process)
+        set_property(TARGET process_exe PROPERTY CXX_STANDARD 11)
+        add_test(NAME boost_process COMMAND process_exe)
     endif()
 
     if(WITH_PYTHON)
