@@ -1,14 +1,12 @@
-import os
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import copy, get, replace_in_file, rmdir
-from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
+import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0"
 
 
 class Pagmo2Conan(ConanFile):
@@ -48,7 +46,7 @@ class Pagmo2Conan(ConanFile):
 
     def config_options(self):
         if self.settings.os == "Windows":
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def configure(self):
         if self.options.shared:
@@ -63,7 +61,7 @@ class Pagmo2Conan(ConanFile):
         if self.options.with_eigen:
             self.requires("eigen/3.4.0", transitive_headers=True)
         if self.options.with_nlopt:
-            self.requires("nlopt/2.7.1", transitive_headers=True, transitive_libs=True)
+            self.requires("nlopt/2.10.0", transitive_headers=True, transitive_libs=True)
 
     @property
     def _required_boost_components(self):

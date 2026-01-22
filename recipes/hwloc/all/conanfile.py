@@ -4,6 +4,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
+from conan.tools.files import replace_in_file
 import os
 
 required_conan_version = ">=1.53.0"
@@ -56,6 +57,10 @@ class HwlocConan(ConanFile):
             tc.cache_variables["HWLOC_WITH_CUDA"] = 'OFF'
             tc.cache_variables["HWLOC_BUILD_SHARED_LIBS"] = True
             tc.cache_variables["HWLOC_WITH_LIBXML2"] = self.options.with_libxml2
+            # ARM64 workaround for Windows
+            if self.settings.arch == "armv8":
+                tc.cache_variables["CMAKE_C_FLAGS"] = "-DHWLOC_WIN_SYS_ARCH_UNKNOWN=1"
+                tc.cache_variables["CMAKE_SYSTEM_PROCESSOR"] = "ARM64"
             tc.generate()
         else:
             deps = PkgConfigDeps(self)
@@ -69,6 +74,13 @@ class HwlocConan(ConanFile):
 
     def build(self):
         if self.settings.os == "Windows":
+            # ARM64 workaround: patch source files for ARM64 support
+            if self.settings.arch == "armv8":
+                cpuid_file = os.path.join(self.source_folder, "include", "private", "cpuid-x86.h")
+                if os.path.exists(cpuid_file):
+                    replace_in_file(self, cpuid_file, 
+                        "#error unknown architecture", 
+                        "// ARM64 architecture - CPUID not available\n#define HWLOC_X86_CPUID_NOT_SUPPORTED")
             cmake = CMake(self)
             cmake.configure(build_script_folder=os.path.join("contrib", "windows-cmake"))
             cmake.build()

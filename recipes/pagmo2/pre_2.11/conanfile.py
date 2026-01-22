@@ -42,7 +42,7 @@ class Pagmo2Conan(ConanFile):
         if self.options.with_eigen:
             self.requires("eigen/3.4.0", transitive_headers=True)
         if self.options.with_nlopt:
-            self.requires("nlopt/2.7.1", transitive_headers=True, transitive_libs=True)
+            self.requires("nlopt/2.10.0", transitive_headers=True, transitive_libs=True)
 
     def package_id(self):
         self.info.settings.clear()

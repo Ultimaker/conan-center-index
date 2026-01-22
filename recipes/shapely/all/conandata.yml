@@ -1,0 +1,7 @@
+sources:
+  "2.0.6":
+    url: "https://github.com/shapely/shapely/archive/2.0.6.tar.gz"
+    sha256: "71f1830bd1aa42d0493c8beb48c2e80712450af43376af4ba3bf40f0d9064120"
+  "2.1.2":
+    url: "https://github.com/shapely/shapely/archive/2.1.2.tar.gz"
+    sha256: "4a3e6bd5b2a4e88b06b2d653a9c31a7e6b9b4b1b4ababd48c81b7c50c7b8b1b3"
