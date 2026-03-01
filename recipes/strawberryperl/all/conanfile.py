@@ -25,8 +25,8 @@ class StrawberryPerlConan(ConanFile):
         del self.info.settings.build_type
 
     def validate_build(self):
-        if self.settings.arch not in ("x86", "x86_64"):
-            raise ConanInvalidConfiguration(f"{self.ref} is only available for x86 and x86_64 architectures.")
+        if self.settings.arch not in ("x86", "x86_64", "armv8"):
+            raise ConanInvalidConfiguration(f"{self.ref} is only available for x86, x86_64, and armv8 architectures.")
 
     def validate(self):
         if self.settings.os != "Windows":
@@ -40,7 +40,9 @@ class StrawberryPerlConan(ConanFile):
         pass
 
     def build(self):
-        get(self, **self.conan_data["sources"][self.version][str(self.settings.arch)], destination=self.build_folder)
+        # ARM64 uses x86_64 binaries via compatibility
+        arch = "x86_64" if self.settings.arch == "armv8" else str(self.settings.arch)
+        get(self, **self.conan_data["sources"][self.version][arch], destination=self.build_folder)
 
     def package(self):
         copy(self, pattern="License.rtf*", src=os.path.join(self.build_folder, "licenses"), dst=os.path.join(self.package_folder, "licenses"))

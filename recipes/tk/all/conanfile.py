@@ -191,10 +191,29 @@ class TkConan(ConanFile):
         if tclimplib is None or tclstublib is None:
             raise ConanException("tcl dependency misses tcl and/or tclstub library")
 
+        # Workaround: tk's build expects tcl source layout, but we have installed layout
+        # Create a temporary symlink/junction to map include -> generic for tcl.h
+        tcl_pkg_folder = self.dependencies["tcl"].package_folder
+        tcl_generic_dir = os.path.join(tcl_pkg_folder, "generic")
+        if not os.path.exists(tcl_generic_dir):
+            # Create junction from include to generic so tk can find tcl.h
+            os.makedirs(tcl_generic_dir, exist_ok=True)
+            tcl_h_src = os.path.join(tcl_pkg_folder, "include", "tcl.h")
+            tcl_h_dst = os.path.join(tcl_generic_dir, "tcl.h")
+            if os.path.exists(tcl_h_src) and not os.path.exists(tcl_h_dst):
+                import shutil
+                # Copy all headers from include to generic
+                for header in os.listdir(os.path.join(tcl_pkg_folder, "include")):
+                    if header.endswith(".h"):
+                        shutil.copy2(
+                            os.path.join(tcl_pkg_folder, "include", header),
+                            os.path.join(tcl_generic_dir, header)
+                        )
+        
         flags = {
             "INSTALLDIR": self.package_folder,
             "OPTS": ",".join(opts),
-            "TCLDIR": self.dependencies["tcl"].package_folder,
+            "TCLDIR": tcl_pkg_folder,
             "TCL_LIBRARY": self.dependencies["tcl"].runenv_info.vars(self).get("TCL_LIBRARY"),
             "TCLIMPLIB": tclimplib,
             "TCLSTUBLIB": tclstublib,
@@ -227,6 +246,13 @@ class TkConan(ConanFile):
                 self.output.info("ARM64 makefile pattern not found, proceeding without patch")
         
         if is_msvc(self):
+            # Build nmakehlp first - it's needed by the makefile build system
+            if self.settings.arch == "armv8":
+                self.output.info("Building nmakehlp.exe for ARM64")
+                config_dir = self._get_configure_folder("win")
+                with chdir(self, config_dir):
+                    self.run("cl -nologo -W3 nmakehlp.c -link -subsystem:console", env="conanbuild")
+            
             self._build_nmake()
         else:
             autotools = Autotools(self)

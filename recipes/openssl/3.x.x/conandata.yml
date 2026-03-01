@@ -5,6 +5,9 @@
 #  Note: please do not maintain multiple patch versions of the same minor,
 #        unless required by the above.
 sources:
+  3.6.1:
+    url: "https://github.com/openssl/openssl/releases/download/openssl-3.6.1/openssl-3.6.1.tar.gz"
+    sha256: "b1bfedcd5b289ff22aee87c9d600f515767ebf45f77168cb6d64f231f518a82e"
   3.6.0:
     url: "https://github.com/openssl/openssl/releases/download/openssl-3.6.0/openssl-3.6.0.tar.gz"
     sha256: b6a5f44b7eb69e3fa35dbf15524405b44837a481d43d81daddde3ff21fcbb8e9
