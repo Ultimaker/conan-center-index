@@ -25,8 +25,8 @@ class StrawberryPerlConan(ConanFile):
         del self.info.settings.build_type
 
     def validate_build(self):
-        if self.settings.arch not in ("x86", "x86_64", "armv8"):
-            raise ConanInvalidConfiguration(f"{self.ref} is only available for x86, x86_64, and armv8 architectures.")
+        if self.settings.arch not in ("x86", "x86_64"):
+            raise ConanInvalidConfiguration(f"{self.ref} is only available for x86, x86_64 architectures.")
 
     def validate(self):
         if self.settings.os != "Windows":
