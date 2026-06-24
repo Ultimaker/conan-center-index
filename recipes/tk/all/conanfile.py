@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
@@ -161,6 +162,26 @@ class TkConan(ConanFile):
             raise ConanException(f"Invalid build system: {build_system}")
         return os.path.join(self.source_folder, build_system)
 
+    def _setup_tcl_generic_dir(self, tcl_pkg_folder=None):
+        # Workaround: tk's build expects tcl source layout, but we have installed layout
+        # Copy headers from include to generic so tk can find tcl.h
+        if tcl_pkg_folder is None:
+            raise ConanException("tcl_pkg_folder must be provided")
+        tcl_generic_dir = os.path.join(tcl_pkg_folder, "generic")
+        if os.path.exists(tcl_generic_dir):
+            return
+        os.makedirs(tcl_generic_dir, exist_ok=True)
+        tcl_h_src = os.path.join(tcl_pkg_folder, "include", "tcl.h")
+        if not os.path.exists(tcl_h_src):
+            return
+        for header in os.listdir(os.path.join(tcl_pkg_folder, "include")):
+            if not header.endswith(".h"):
+                continue
+            shutil.copy2(
+                os.path.join(tcl_pkg_folder, "include", header),
+                os.path.join(tcl_generic_dir, header),
+            )
+
     def _build_nmake(self, target="release"):
         # https://core.tcl.tk/tips/doc/trunk/tip/477.md
         opts = []
@@ -191,25 +212,9 @@ class TkConan(ConanFile):
         if tclimplib is None or tclstublib is None:
             raise ConanException("tcl dependency misses tcl and/or tclstub library")
 
-        # Workaround: tk's build expects tcl source layout, but we have installed layout
-        # Create a temporary symlink/junction to map include -> generic for tcl.h
         tcl_pkg_folder = self.dependencies["tcl"].package_folder
-        tcl_generic_dir = os.path.join(tcl_pkg_folder, "generic")
-        if not os.path.exists(tcl_generic_dir):
-            # Create junction from include to generic so tk can find tcl.h
-            os.makedirs(tcl_generic_dir, exist_ok=True)
-            tcl_h_src = os.path.join(tcl_pkg_folder, "include", "tcl.h")
-            tcl_h_dst = os.path.join(tcl_generic_dir, "tcl.h")
-            if os.path.exists(tcl_h_src) and not os.path.exists(tcl_h_dst):
-                import shutil
-                # Copy all headers from include to generic
-                for header in os.listdir(os.path.join(tcl_pkg_folder, "include")):
-                    if header.endswith(".h"):
-                        shutil.copy2(
-                            os.path.join(tcl_pkg_folder, "include", header),
-                            os.path.join(tcl_generic_dir, header)
-                        )
-        
+        self._setup_tcl_generic_dir(tcl_pkg_folder)
+
         flags = {
             "INSTALLDIR": self.package_folder,
             "OPTS": ",".join(opts),
