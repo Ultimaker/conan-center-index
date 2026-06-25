@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
@@ -161,6 +162,26 @@ class TkConan(ConanFile):
             raise ConanException(f"Invalid build system: {build_system}")
         return os.path.join(self.source_folder, build_system)
 
+    def _setup_tcl_generic_dir(self, tcl_pkg_folder=None):
+        # Workaround: tk's build expects tcl source layout, but we have installed layout
+        # Copy headers from include to generic so tk can find tcl.h
+        if tcl_pkg_folder is None:
+            raise ConanException("tcl_pkg_folder must be provided")
+        tcl_generic_dir = os.path.join(tcl_pkg_folder, "generic")
+        if os.path.exists(tcl_generic_dir):
+            return
+        os.makedirs(tcl_generic_dir, exist_ok=True)
+        tcl_h_src = os.path.join(tcl_pkg_folder, "include", "tcl.h")
+        if not os.path.exists(tcl_h_src):
+            return
+        for header in os.listdir(os.path.join(tcl_pkg_folder, "include")):
+            if not header.endswith(".h"):
+                continue
+            shutil.copy2(
+                os.path.join(tcl_pkg_folder, "include", header),
+                os.path.join(tcl_generic_dir, header),
+            )
+
     def _build_nmake(self, target="release"):
         # https://core.tcl.tk/tips/doc/trunk/tip/477.md
         opts = []
@@ -191,10 +212,13 @@ class TkConan(ConanFile):
         if tclimplib is None or tclstublib is None:
             raise ConanException("tcl dependency misses tcl and/or tclstub library")
 
+        tcl_pkg_folder = self.dependencies["tcl"].package_folder
+        self._setup_tcl_generic_dir(tcl_pkg_folder)
+
         flags = {
             "INSTALLDIR": self.package_folder,
             "OPTS": ",".join(opts),
-            "TCLDIR": self.dependencies["tcl"].package_folder,
+            "TCLDIR": tcl_pkg_folder,
             "TCL_LIBRARY": self.dependencies["tcl"].runenv_info.vars(self).get("TCL_LIBRARY"),
             "TCLIMPLIB": tclimplib,
             "TCLSTUBLIB": tclstublib,
@@ -227,6 +251,13 @@ class TkConan(ConanFile):
                 self.output.info("ARM64 makefile pattern not found, proceeding without patch")
         
         if is_msvc(self):
+            # Build nmakehlp first - it's needed by the makefile build system
+            if self.settings.arch == "armv8":
+                self.output.info("Building nmakehlp.exe for ARM64")
+                config_dir = self._get_configure_folder("win")
+                with chdir(self, config_dir):
+                    self.run("cl -nologo -W3 nmakehlp.c -link -subsystem:console", env="conanbuild")
+            
             self._build_nmake()
         else:
             autotools = Autotools(self)

@@ -83,6 +83,10 @@ class M4Conan(ConanFile):
                 ])
         if self.settings.os == "Windows":
             tc.configure_args.append("ac_cv_func__set_invalid_parameter_handler=yes")
+        if self.settings.os == "Windows" and self.settings.arch == "armv8":
+            # ARM64 Windows + MSYS2: GNU make is not detected properly by config.status,
+            # causing the dependency-tracking bootstrap to fail.
+            tc.configure_args.append("--disable-dependency-tracking")
         env = tc.environment()
         # help2man trick
         env.prepend_path("PATH", self.source_folder)

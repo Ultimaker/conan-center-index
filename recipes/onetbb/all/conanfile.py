@@ -94,6 +94,8 @@ class OneTBBConan(ConanFile):
     def configure(self):
         if Version(self.version) >= "2021.6.0" and not self.options.tbbmalloc:
             self.options.rm_safe("tbbproxy")
+        if self._tbbbind_build:
+            self.options["hwloc"].shared = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")

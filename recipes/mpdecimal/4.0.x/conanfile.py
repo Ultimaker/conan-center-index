@@ -137,7 +137,10 @@ class MpdecimalConan(ConanFile):
         # Use components like the 2.5.x version
         if is_msvc(self):
             lib_prefix = "lib"
-            lib_suffix = f"-{self.version}"
+            if self.options.shared:
+                lib_suffix = f"-{self.version}.dll"
+            else:
+                lib_suffix = f"-{self.version}"
         else:
             lib_prefix = ""
             lib_suffix = ""
